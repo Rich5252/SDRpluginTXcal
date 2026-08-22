@@ -224,6 +224,20 @@ namespace TXcalUiGlue
 		return SetCenterFrequencySafe(m_controller, static_cast<channel_t>(channel), frequencyHz);
 	}
 
+
+	TXcalUi::DemodulatorType TXcalControllerBridge::GetDemodulatorType(int channel)
+	{
+		return static_cast<TXcalUi::DemodulatorType>(
+			static_cast<int>(m_controller->GetDemodulatorType(static_cast<channel_t>(channel))));
+	}
+
+	bool TXcalControllerBridge::SetDemodulatorType(int channel, TXcalUi::DemodulatorType type)
+	{
+		return m_controller->SetDemodulatorType(
+			static_cast<channel_t>(channel),
+			static_cast<IUnoPluginController::DemodulatorType>(static_cast<int>(type)));
+	}
+
 	int TXcalControllerBridge::GetFilterBandwidth(int channel)
 	{
 		return m_controller->GetFilterBandwidth(static_cast<channel_t>(channel));

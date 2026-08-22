@@ -30,6 +30,9 @@ namespace TXcalUiGlue
 		virtual double GetCenterFrequency(int channel);
 		virtual bool SetCenterFrequency(int channel, double frequencyHz);
 
+		virtual TXcalUi::DemodulatorType GetDemodulatorType(int channel);
+		virtual bool SetDemodulatorType(int channel, TXcalUi::DemodulatorType type);
+
 		virtual int GetFilterBandwidth(int channel);
 		virtual bool SetFilterBandwidth(int channel, int bandwidthHz);
 

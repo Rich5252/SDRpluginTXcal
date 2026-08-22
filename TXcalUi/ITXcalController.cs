@@ -17,6 +17,9 @@
         double GetCenterFrequency(int channel);
         bool SetCenterFrequency(int channel, double frequencyHz);
 
+        DemodulatorType GetDemodulatorType(int channel);
+        bool SetDemodulatorType(int channel, DemodulatorType type);
+
         int GetFilterBandwidth(int channel);
         bool SetFilterBandwidth(int channel, int bandwidthHz);
 
