@@ -1,0 +1,14 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="TXcalProject/TXcalProject.vcxproj" Id="79b4b2fe-836b-4921-be3b-6ab4ff5228f7">
+    <BuildDependency Project="TXcalUiGlue/TXcalUiGlue.vcxproj" />
+  </Project>
+  <Project Path="TXcalUi/TXcalUi.csproj" />
+  <Project Path="TXcalUiGlue/TXcalUiGlue.vcxproj" Id="175670e9-551d-4df0-abfa-02f228909e0e">
+    <BuildDependency Project="TXcalUi/TXcalUi.csproj" />
+  </Project>
+</Solution>
