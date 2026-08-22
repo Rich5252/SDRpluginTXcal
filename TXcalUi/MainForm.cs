@@ -158,10 +158,12 @@ namespace TXcalUi
 
             double at900 = MeasPower(14200700, 5);
             double atNeg500 = MeasPower(14199500, 5);
+            atNeg500 = MeasPower(14199500, 5);
             double diff = at900 - atNeg500;
             tbData.AppendText($"Low 3rd IMD: {diff:F3} dBm\r\n");
 
             at900 = MeasPower(14201900, 5);
+            atNeg500 = MeasPower(14203000, 5);
             atNeg500 = MeasPower(14203000, 5);
             diff = at900 - atNeg500;
             tbData.AppendText($"High 3rd IMD: {diff:F3} dBm\r\n");
@@ -204,17 +206,38 @@ namespace TXcalUi
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorUSB); // set demodulator to USB for image measurement
             _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for image measurement
 
-            double at900 = MeasPower(1420000, 5);
+            double at900 = MeasPower(14200000, 5);
             double atNeg500 = MeasPower(14216000, 5);
+            atNeg500 = MeasPower(14216000, 5);
             double diff = at900 - atNeg500;
             tbData.AppendText($"High Image: {diff:F3} dBm\r\n");
 
-            atNeg500 = MeasPower(14284000, 5);
+            atNeg500 = MeasPower(14184000, 5);
+            atNeg500 = MeasPower(14184000, 5);
             diff = at900 - atNeg500;
             tbData.AppendText($"Low Image: {diff:F3} dBm\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
 
+        }
+
+        private void butMicr_Click(object sender, EventArgs e)
+        {
+            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to USB for image measurement
+            _controller.SetFilterBandwidth(Channel, 250); // set filter to 3 kHz for image measurement
+
+            double at900 = MeasPower(14200000 + 300 + 125, 5);
+            double atNeg500 = MeasPower(14200000 - 300 - 125, 5);
+            atNeg500 = MeasPower(14200000 - 300 - 125, 5);
+            double diff = at900 - atNeg500;
+            tbData.AppendText($"Low 250: {diff:F3} dBm\r\n");
+
+            atNeg500 = MeasPower(14200000 + 3000 - 125, 5);
+            atNeg500 = MeasPower(14200000 + 3000 + 3000 - 125, 5);
+            diff = at900 - atNeg500;
+            tbData.AppendText($"Hi 250: {diff:F3} dBm\r\n");
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
         // Nothing native to release here on close -- SDRunoPlugin_TXcalUi's destructor

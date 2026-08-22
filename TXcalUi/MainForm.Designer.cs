@@ -28,6 +28,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.tbDeltaF = new System.Windows.Forms.TextBox();
             this.butImage = new System.Windows.Forms.Button();
+            this.butMicr = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblFrequency
@@ -149,11 +150,22 @@
             this.butImage.UseVisualStyleBackColor = true;
             this.butImage.Click += new System.EventHandler(this.butImage_Click);
             // 
+            // butMicr
+            // 
+            this.butMicr.Location = new System.Drawing.Point(543, 364);
+            this.butMicr.Name = "butMicr";
+            this.butMicr.Size = new System.Drawing.Size(89, 23);
+            this.butMicr.TabIndex = 13;
+            this.butMicr.Text = "Microphone";
+            this.butMicr.UseVisualStyleBackColor = true;
+            this.butMicr.Click += new System.EventHandler(this.butMicr_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 532);
+            this.Controls.Add(this.butMicr);
             this.Controls.Add(this.butImage);
             this.Controls.Add(this.tbDeltaF);
             this.Controls.Add(this.label2);
@@ -190,5 +202,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox tbDeltaF;
         private System.Windows.Forms.Button butImage;
+        private System.Windows.Forms.Button butMicr;
     }
 }
