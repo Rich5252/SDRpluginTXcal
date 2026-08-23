@@ -66,8 +66,8 @@ namespace SerialDemo
                 // Still noisy - "v" was probably lost in the flood. Loop and try again.
             }
 
-            throw new TimeoutException(
-                $"ESP32 did not go quiet after sending \"{silenceCommand}\" {maxAttempts} time(s).");
+            //throw new TimeoutException(
+            //    $"ESP32 did not go quiet after sending \"{silenceCommand}\" {maxAttempts} time(s).");
         }
 
         /// <summary>
@@ -121,14 +121,23 @@ namespace SerialDemo
         {
             lock (_lock) // guards against two callers using the port at once
             {
-                if (_port == null || !_port.IsOpen)
-                    throw new InvalidOperationException("Serial port is not open.");
+                if (_port == null || !_port.IsOpen) return  "Send() ERROR: Serial port is not open";
 
                 _port.DiscardInBuffer();   // drop anything stale left over from before
                 _port.Write(message);  // appends "\r\n" automatically
                 return _port.ReadLine();   // blocks until "\r\n"; terminator is stripped from the result
             }
         }
+
+        public string ReadLine()
+        {
+            lock (_lock) // guards against two callers using the port at once
+            {
+                if (_port == null || !_port.IsOpen) return "ReadLine() ERROR: Serial port is not open";
+                return _port.ReadLine();   // blocks until "\r\n"; terminator is stripped from the result
+            }
+        }
+
 
         public void Close()
         {

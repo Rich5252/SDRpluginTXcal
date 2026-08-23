@@ -29,6 +29,8 @@
             this.tbDeltaF = new System.Windows.Forms.TextBox();
             this.butImage = new System.Windows.Forms.Button();
             this.butMicr = new System.Windows.Forms.Button();
+            this.butMeasDuty = new System.Windows.Forms.Button();
+            this.butMidBand = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblFrequency
@@ -73,12 +75,13 @@
             this.tbData.Multiline = true;
             this.tbData.Name = "tbData";
             this.tbData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbData.Size = new System.Drawing.Size(422, 408);
+            this.tbData.Size = new System.Drawing.Size(541, 408);
             this.tbData.TabIndex = 4;
+            this.tbData.WordWrap = false;
             // 
             // butMeas
             // 
-            this.butMeas.Location = new System.Drawing.Point(543, 113);
+            this.butMeas.Location = new System.Drawing.Point(570, 113);
             this.butMeas.Name = "butMeas";
             this.butMeas.Size = new System.Drawing.Size(89, 24);
             this.butMeas.TabIndex = 5;
@@ -88,7 +91,7 @@
             // 
             // btStop
             // 
-            this.btStop.Location = new System.Drawing.Point(543, 164);
+            this.btStop.Location = new System.Drawing.Point(570, 188);
             this.btStop.Name = "btStop";
             this.btStop.Size = new System.Drawing.Size(89, 27);
             this.btStop.TabIndex = 6;
@@ -98,7 +101,7 @@
             // 
             // but3rdIMD
             // 
-            this.but3rdIMD.Location = new System.Drawing.Point(543, 254);
+            this.but3rdIMD.Location = new System.Drawing.Point(570, 254);
             this.but3rdIMD.Name = "but3rdIMD";
             this.but3rdIMD.Size = new System.Drawing.Size(89, 23);
             this.but3rdIMD.TabIndex = 7;
@@ -142,7 +145,7 @@
             // 
             // butImage
             // 
-            this.butImage.Location = new System.Drawing.Point(543, 307);
+            this.butImage.Location = new System.Drawing.Point(570, 307);
             this.butImage.Name = "butImage";
             this.butImage.Size = new System.Drawing.Size(89, 23);
             this.butImage.TabIndex = 12;
@@ -152,7 +155,7 @@
             // 
             // butMicr
             // 
-            this.butMicr.Location = new System.Drawing.Point(543, 364);
+            this.butMicr.Location = new System.Drawing.Point(570, 364);
             this.butMicr.Name = "butMicr";
             this.butMicr.Size = new System.Drawing.Size(89, 23);
             this.butMicr.TabIndex = 13;
@@ -160,11 +163,33 @@
             this.butMicr.UseVisualStyleBackColor = true;
             this.butMicr.Click += new System.EventHandler(this.butMicr_Click);
             // 
+            // butMeasDuty
+            // 
+            this.butMeasDuty.Location = new System.Drawing.Point(570, 143);
+            this.butMeasDuty.Name = "butMeasDuty";
+            this.butMeasDuty.Size = new System.Drawing.Size(89, 23);
+            this.butMeasDuty.TabIndex = 14;
+            this.butMeasDuty.Text = "Meas Duty";
+            this.butMeasDuty.UseVisualStyleBackColor = true;
+            this.butMeasDuty.Click += new System.EventHandler(this.butMeasDuty_Click);
+            // 
+            // butMidBand
+            // 
+            this.butMidBand.Location = new System.Drawing.Point(570, 414);
+            this.butMidBand.Name = "butMidBand";
+            this.butMidBand.Size = new System.Drawing.Size(89, 23);
+            this.butMidBand.TabIndex = 15;
+            this.butMidBand.Text = "Mid Band";
+            this.butMidBand.UseVisualStyleBackColor = true;
+            this.butMidBand.Click += new System.EventHandler(this.butMidBand_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 532);
+            this.Controls.Add(this.butMidBand);
+            this.Controls.Add(this.butMeasDuty);
             this.Controls.Add(this.butMicr);
             this.Controls.Add(this.butImage);
             this.Controls.Add(this.tbDeltaF);
@@ -203,5 +228,7 @@
         private System.Windows.Forms.TextBox tbDeltaF;
         private System.Windows.Forms.Button butImage;
         private System.Windows.Forms.Button butMicr;
+        private System.Windows.Forms.Button butMeasDuty;
+        private System.Windows.Forms.Button butMidBand;
     }
 }

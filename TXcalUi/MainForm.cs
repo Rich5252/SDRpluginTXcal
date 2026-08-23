@@ -4,10 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+        
 namespace TXcalUi
 {
+
     public partial class MainForm : Form
     {
+        private const bool FreqAdjust = true;
+        private const bool NoFreqAdjust = true;
+
         private readonly ITXcalController _controller;
         private const int Channel = 0; // adjust if the plugin needs to address multiple VRX channels
 
@@ -79,10 +84,131 @@ namespace TXcalUi
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
+        
+        private void MainForm_Shown(object sender, EventArgs e)
+        {
+            System.Threading.Thread.Sleep(1000);            //wait for esp to wake up
+            _serial.OpenAndSilenceEsp32("COM15", 921600); // adjust COM port and baud rate as needed
+            tbData.AppendText("Serial port opened and ESP32 silenced.\r\n");
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            _serial.Close();
+        }
+
+        private void but3rdIMD_Click(object sender, EventArgs e)
+        {
+            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to CW for IMD measurement
+            _controller.SetFilterBandwidth(Channel, 500); // set filter to 3 kHz for IMD measurement
+
+            double ft1 = 14200700 + double.Parse(tbDeltaF.Text); // 14.200700 MHz
+            double ft2 = 14201900 + double.Parse(tbDeltaF.Text); // 14.201900 MHz
+            double flsb3 = 2 * ft1 - ft2; // 14.199500 MHz
+            double fusb3 = 2 * ft2 - ft1; // 14.203100 MHz
+
+            double at900 = MeasPower(ft1, 5, NoFreqAdjust);
+            double atNeg500 = MeasPower(flsb3, 5, NoFreqAdjust);
+            atNeg500 = MeasPower(flsb3, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
+            double diff = at900 - atNeg500;
+            tbData.AppendText($"Low 3rd IMD: {diff:F3} dBm\r\n");
+
+            at900 = MeasPower(ft2, 5, NoFreqAdjust);
+            atNeg500 = MeasPower(fusb3, 5, NoFreqAdjust);
+            atNeg500 = MeasPower(fusb3, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
+            diff = at900 - atNeg500;
+            tbData.AppendText($"High 3rd IMD: {diff:F3} dBm\r\n");
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
+        }
+
+
+        private static double LastFreq = 0;
+        private double MeasPower(double freqHz, int nMeas, bool adjustFreq = true)
+        {
+            double NewFreq = freqHz;
+            if (adjustFreq) NewFreq = freqHz + double.Parse(tbDeltaF.Text);
+
+            if (LastFreq != NewFreq)
+            {
+                _controller.SetVfoFrequency(0, NewFreq);
+                System.Threading.Thread.Sleep(2000); // wait for the frequency to settle
+                LastFreq = NewFreq;
+            }
+
+            double power = 0;
+            double avgPower = 0;
+            for (int i = 0; i < nMeas; i++)
+            {
+                power = _controller.GetPower(0);
+                //tbData.AppendText($"GetPower returned {power:F6} dBm\r\n");
+                avgPower += power;
+                System.Threading.Thread.Sleep(250); // wait a bit before the next measurement
+            }
+            avgPower = avgPower / nMeas; // average the 5 measurements
+            return avgPower;
+        }
+
+
+        private void tbCmd_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            string strCmd = e.KeyChar.ToString();
+            string strRet = _serial.Send(strCmd);
+            tbData.AppendText($"Command sent: {strCmd}\r\n");
+            tbData.AppendText($"Response: {strRet}\r\n");
+            if (strCmd == "P")
+            {
+                strRet = _serial.ReadLine();
+                tbData.AppendText($"Response: {strRet}\r\n");
+            }
+            tbCmd.Text = string.Empty;
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
+        }
+
+        private void butImage_Click(object sender, EventArgs e)
+        {
+            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorUSB); // set demodulator to USB for image measurement
+            _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for image measurement
+
+            double at900 = MeasPower(14200000, 5);
+            double atNeg500 = MeasPower(14216000, 5);
+            atNeg500 = MeasPower(14216000, 5);
+            double diff = at900 - atNeg500;
+            tbData.AppendText($"High Image: {diff:F3} dBm\r\n");
+
+            atNeg500 = MeasPower(14184000, 5);
+            atNeg500 = MeasPower(14184000, 5);
+            diff = at900 - atNeg500;
+            tbData.AppendText($"Low Image: {diff:F3} dBm\r\n");
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
+
+        }
+
+        private void butMicr_Click(object sender, EventArgs e)
+        {
+            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to USB for image measurement
+            _controller.SetFilterBandwidth(Channel, 250); // set filter to 3 kHz for image measurement
+
+            double at900 = MeasPower(14200000 + 300 + 125, 5);
+            double atNeg500 = MeasPower(14200000 - 300 - 125, 5);
+            atNeg500 = MeasPower(14200000 - 300 - 125, 5);
+            double diff = at900 - atNeg500;
+            tbData.AppendText($"Low 250: {diff:F3} dBm\r\n");
+
+            atNeg500 = MeasPower(14200000 + 3000 - 125, 5);
+            atNeg500 = MeasPower(14200000 + 3000 + 3000 - 125, 5);
+            diff = at900 - atNeg500;
+            tbData.AppendText($"Hi 250: {diff:F3} dBm\r\n");
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
+        }
+
         private void butMeas_Click(object sender, EventArgs e)
         {
-
-
             StopFlg = false; // reset the stop flag before starting the measurement loop
             tbData.Text = string.Empty;
             double power = 0;
@@ -137,105 +263,59 @@ namespace TXcalUi
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
-        private void MainForm_Shown(object sender, EventArgs e)
+
+        private void butMeasDuty_Click(object sender, EventArgs e)
         {
-            System.Threading.Thread.Sleep(1000);            //wait for esp to wake up
-            _serial.OpenAndSilenceEsp32("COM15", 921600); // adjust COM port and baud rate as needed
-            tbData.AppendText("Serial port opened and ESP32 silenced.\r\n");
-
-            tbCmd.Focus(); // put the cursor back in the command box for convenience
-        }
-
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            _serial.Close();
-        }
-
-        private void but3rdIMD_Click(object sender, EventArgs e)
-        {
-            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to CW for IMD measurement
-            _controller.SetFilterBandwidth(Channel, 500); // set filter to 3 kHz for IMD measurement
-
-            double at900 = MeasPower(14200700, 5);
-            double atNeg500 = MeasPower(14199500, 5);
-            atNeg500 = MeasPower(14199500, 5);
-            double diff = at900 - atNeg500;
-            tbData.AppendText($"Low 3rd IMD: {diff:F3} dBm\r\n");
-
-            at900 = MeasPower(14201900, 5);
-            atNeg500 = MeasPower(14203000, 5);
-            atNeg500 = MeasPower(14203000, 5);
-            diff = at900 - atNeg500;
-            tbData.AppendText($"High 3rd IMD: {diff:F3} dBm\r\n");
-
-            tbCmd.Focus(); // put the cursor back in the command box for convenience
-        }
-
-        private double MeasPower(double freqHz, int nMeas)
-        {
-            _controller.SetVfoFrequency(0, freqHz + double.Parse(tbDeltaF.Text));
-            System.Threading.Thread.Sleep(2000);
-
+            StopFlg = false; // reset the stop flag before starting the measurement loop
+            tbData.Text = string.Empty;
             double power = 0;
             double avgPower = 0;
-            for (int i = 0; i < nMeas; i++)
-            {
-                power = _controller.GetPower(0);
-                //tbData.AppendText($"GetPower returned {power:F6} dBm\r\n");
-                avgPower += power;
-                System.Threading.Thread.Sleep(250); // wait a bit before the next measurement
-            }
-            avgPower = avgPower / nMeas; // average the 5 measurements
-            return avgPower;
-        }
+            string strRet = string.Empty;
 
-
-        private void tbCmd_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            string strCmd = e.KeyChar.ToString();
-            string strRet = _serial.Send(strCmd);
-            tbData.AppendText($"Command sent: {strCmd}\r\n");
-            tbData.AppendText($"Response: {strRet}\r\n");
-            tbCmd.Text = string.Empty;
-
-            tbCmd.Focus(); // put the cursor back in the command box for convenience
-        }
-
-        private void butImage_Click(object sender, EventArgs e)
-        {
-            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorUSB); // set demodulator to USB for image measurement
-            _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for image measurement
-
-            double at900 = MeasPower(14200000, 5);
-            double atNeg500 = MeasPower(14216000, 5);
-            atNeg500 = MeasPower(14216000, 5);
-            double diff = at900 - atNeg500;
-            tbData.AppendText($"High Image: {diff:F3} dBm\r\n");
-
-            atNeg500 = MeasPower(14184000, 5);
-            atNeg500 = MeasPower(14184000, 5);
-            diff = at900 - atNeg500;
-            tbData.AppendText($"Low Image: {diff:F3} dBm\r\n");
-
-            tbCmd.Focus(); // put the cursor back in the command box for convenience
-
-        }
-
-        private void butMicr_Click(object sender, EventArgs e)
-        {
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to USB for image measurement
             _controller.SetFilterBandwidth(Channel, 250); // set filter to 3 kHz for image measurement
 
-            double at900 = MeasPower(14200000 + 300 + 125, 5);
-            double atNeg500 = MeasPower(14200000 - 300 - 125, 5);
-            atNeg500 = MeasPower(14200000 - 300 - 125, 5);
-            double diff = at900 - atNeg500;
-            tbData.AppendText($"Low 250: {diff:F3} dBm\r\n");
+            strRet = _serial.Send("s");
+            tbData.AppendText($"{strRet}\r\n");
 
-            atNeg500 = MeasPower(14200000 + 3000 - 125, 5);
-            atNeg500 = MeasPower(14200000 + 3000 + 3000 - 125, 5);
-            diff = at900 - atNeg500;
-            tbData.AppendText($"Hi 250: {diff:F3} dBm\r\n");
+            strRet = _serial.Send("d");
+            if (!strRet.Contains("override ON")) strRet = _serial.Send("d");
+            tbData.AppendText($"{strRet}\r\n");
+
+            while (true)
+            {
+                //set next level
+                strRet = _serial.Send(">");
+                tbData.AppendText($"{strRet}, ");
+                int nMeas = 5;
+
+                avgPower = MeasPower(14201000, nMeas); // measure at 14.2 MHz
+                tbData.AppendText($"{avgPower:F6} dBm\r\n");
+
+                if (StopFlg)
+                {
+                    tbData.AppendText("Measurement loop stopped by user.\r\n");
+                    StopFlg = false; // reset the flag for next time
+
+                    tbCmd.Focus(); // put the cursor back in the command box for convenience
+                    return;
+                }
+            }
+
+        }
+
+        private void butMidBand_Click(object sender, EventArgs e)
+        {
+            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to CW for IMD measurement
+            _controller.SetFilterBandwidth(Channel, 750); // set filter to 3 kHz for IMD measurement
+
+            double ft1 = 14200700 + double.Parse(tbDeltaF.Text); // 14.200700 MHz
+            double ft2 = 14201900 + double.Parse(tbDeltaF.Text); // 14.201900 MHz
+            double midFreq = (ft1 + ft2) / 2; // 14.201300 MHz
+
+            double pwr = MeasPower(midFreq, 5, NoFreqAdjust);
+            pwr = MeasPower(midFreq, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
+            tbData.AppendText($"Pwr mid 750Hz band: {pwr:F3} dBm\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
