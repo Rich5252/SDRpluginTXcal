@@ -31,6 +31,7 @@
             this.butMicr = new System.Windows.Forms.Button();
             this.butMeasDuty = new System.Windows.Forms.Button();
             this.butMidBand = new System.Windows.Forms.Button();
+            this.butWide = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblFrequency
@@ -183,11 +184,22 @@
             this.butMidBand.UseVisualStyleBackColor = true;
             this.butMidBand.Click += new System.EventHandler(this.butMidBand_Click);
             // 
+            // butWide
+            // 
+            this.butWide.Location = new System.Drawing.Point(570, 456);
+            this.butWide.Name = "butWide";
+            this.butWide.Size = new System.Drawing.Size(89, 23);
+            this.butWide.TabIndex = 16;
+            this.butWide.Text = "Wide";
+            this.butWide.UseVisualStyleBackColor = true;
+            this.butWide.Click += new System.EventHandler(this.butWide_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 532);
+            this.Controls.Add(this.butWide);
             this.Controls.Add(this.butMidBand);
             this.Controls.Add(this.butMeasDuty);
             this.Controls.Add(this.butMicr);
@@ -230,5 +242,6 @@
         private System.Windows.Forms.Button butMicr;
         private System.Windows.Forms.Button butMeasDuty;
         private System.Windows.Forms.Button butMidBand;
+        private System.Windows.Forms.Button butWide;
     }
 }
