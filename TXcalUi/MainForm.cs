@@ -88,7 +88,7 @@ namespace TXcalUi
         private void MainForm_Shown(object sender, EventArgs e)
         {
             System.Threading.Thread.Sleep(1000);            //wait for esp to wake up
-            _serial.OpenAndSilenceEsp32("COM15", 921600); // adjust COM port and baud rate as needed
+            _serial.OpenAndSilenceEsp32("COM14", 921600); // adjust COM port and baud rate as needed
             tbData.AppendText("Serial port opened and ESP32 silenced.\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
