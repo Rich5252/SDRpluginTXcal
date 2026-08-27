@@ -378,6 +378,51 @@ namespace TXcalUi
 
         }
 
+        private void butSpread_Click(object sender, EventArgs e)
+        {
+            double fbase = 14200000 + double.Parse(tbDeltaF.Text); // 14.200700 MHz
+            double f5kLo = fbase - 5000; 
+            double f5kHi = fbase + 5000; 
+            double f10kLo = fbase - 10000; 
+            double f10kHi = fbase + 10000; 
+            double f20kLo = fbase - 20000; 
+            double f20kHi = fbase + 20000; // 14.200700 MHz
+
+            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorUSB); // set demodulator to CW for IMD measurement
+            _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for IMD measurement
+
+            double main = MeasPower(fbase, 5, NoFreqAdjust);
+            main = MeasPower(fbase, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
+            tbData.AppendText($"Spread Test Main Level: {main:F3} dBm\r\n");
+
+            double pwr = MeasPower(f5kLo, 5, NoFreqAdjust);
+            pwr = MeasPower(f5kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
+            tbData.AppendText($"Low 5k leakage: {pwr - main:F3} dB\r\n");
+
+            pwr = MeasPower(f5kHi, 5, NoFreqAdjust);
+            pwr = MeasPower(f5kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
+            tbData.AppendText($"High 5k leakage: {pwr - main:F3} dB\r\n");
+
+            pwr = MeasPower(f10kLo, 5, NoFreqAdjust);
+            pwr = MeasPower(f10kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
+            tbData.AppendText($"Low 10k leakage: {pwr - main:F3} dB\r\n");
+
+            pwr = MeasPower(f10kHi, 5, NoFreqAdjust);
+            pwr = MeasPower(f10kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
+            tbData.AppendText($"High 10k leakage: {pwr - main:F3} dB\r\n");
+
+            pwr = MeasPower(f20kLo, 5, NoFreqAdjust);
+            pwr = MeasPower(f20kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
+            tbData.AppendText($"Low 20k leakage: {pwr - main:F3} dB\r\n");
+
+            pwr = MeasPower(f20kHi, 5, NoFreqAdjust);
+            pwr = MeasPower(f20kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
+            tbData.AppendText($"High 20k leakage: {pwr - main:F3} dB\r\n");
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
+
+        }
+
         // Nothing native to release here on close -- SDRunoPlugin_TXcalUi's destructor
         // (native side) owns the lifetime of TXcalUiHost/TXcalControllerBridge and
         // tears them down when the plugin itself is destroyed.
