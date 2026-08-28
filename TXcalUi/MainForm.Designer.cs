@@ -33,6 +33,7 @@
             this.butMidBand = new System.Windows.Forms.Button();
             this.butWide = new System.Windows.Forms.Button();
             this.butSpread = new System.Windows.Forms.Button();
+            this.butFloor = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblFrequency
@@ -93,7 +94,7 @@
             // 
             // btStop
             // 
-            this.btStop.Location = new System.Drawing.Point(570, 188);
+            this.btStop.Location = new System.Drawing.Point(570, 172);
             this.btStop.Name = "btStop";
             this.btStop.Size = new System.Drawing.Size(89, 27);
             this.btStop.TabIndex = 6;
@@ -103,7 +104,7 @@
             // 
             // but3rdIMD
             // 
-            this.but3rdIMD.Location = new System.Drawing.Point(570, 254);
+            this.but3rdIMD.Location = new System.Drawing.Point(570, 266);
             this.but3rdIMD.Name = "but3rdIMD";
             this.but3rdIMD.Size = new System.Drawing.Size(89, 23);
             this.but3rdIMD.TabIndex = 7;
@@ -205,11 +206,22 @@
             this.butSpread.UseVisualStyleBackColor = true;
             this.butSpread.Click += new System.EventHandler(this.butSpread_Click);
             // 
+            // butFloor
+            // 
+            this.butFloor.Location = new System.Drawing.Point(570, 225);
+            this.butFloor.Name = "butFloor";
+            this.butFloor.Size = new System.Drawing.Size(89, 23);
+            this.butFloor.TabIndex = 18;
+            this.butFloor.Text = "Noise floor";
+            this.butFloor.UseVisualStyleBackColor = true;
+            this.butFloor.Click += new System.EventHandler(this.butFloor_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 532);
+            this.Controls.Add(this.butFloor);
             this.Controls.Add(this.butSpread);
             this.Controls.Add(this.butWide);
             this.Controls.Add(this.butMidBand);
@@ -256,5 +268,6 @@
         private System.Windows.Forms.Button butMidBand;
         private System.Windows.Forms.Button butWide;
         private System.Windows.Forms.Button butSpread;
+        private System.Windows.Forms.Button butFloor;
     }
 }
