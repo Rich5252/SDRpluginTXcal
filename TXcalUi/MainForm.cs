@@ -290,12 +290,17 @@ namespace TXcalUi
             if (!strRet.Contains("override ON")) strRet = _serial.Send("d");
             tbData.AppendText($"{strRet}\r\n");
 
-            while (true)
+            int nMeas = 10;
+            avgPower = MeasPower(14201000, nMeas); // time to settle agc
+
+            int i = 0;
+            for (i = 0; i < 1026; i++)  
             {
                 //set next level
-                strRet = _serial.Send(">");
+                if (i == 0) strRet = _serial.Send("<");     // first time through, set to lowest level
+                else strRet = _serial.Send(">");
                 tbData.AppendText($"{strRet}, ");
-                int nMeas = 5;
+
 
                 avgPower = MeasPower(14201000, nMeas); // measure at 14.2 MHz
                 tbData.AppendText($"{avgPower:F6} dBm\r\n");
@@ -310,6 +315,10 @@ namespace TXcalUi
                 }
             }
 
+            tbData.AppendText("Measurement loop completed.\r\n");
+            StopFlg = false; // reset the flag for next time
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
         private void butMidBand_Click(object sender, EventArgs e)
