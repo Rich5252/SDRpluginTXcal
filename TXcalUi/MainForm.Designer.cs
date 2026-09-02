@@ -34,6 +34,7 @@
             this.butWide = new System.Windows.Forms.Button();
             this.butSpread = new System.Windows.Forms.Button();
             this.butFloor = new System.Windows.Forms.Button();
+            this.tbResults = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // lblFrequency
@@ -78,7 +79,7 @@
             this.tbData.Multiline = true;
             this.tbData.Name = "tbData";
             this.tbData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbData.Size = new System.Drawing.Size(541, 408);
+            this.tbData.Size = new System.Drawing.Size(541, 310);
             this.tbData.TabIndex = 4;
             this.tbData.WordWrap = false;
             // 
@@ -216,11 +217,22 @@
             this.butFloor.UseVisualStyleBackColor = true;
             this.butFloor.Click += new System.EventHandler(this.butFloor_Click);
             // 
+            // tbResults
+            // 
+            this.tbResults.Location = new System.Drawing.Point(23, 429);
+            this.tbResults.Multiline = true;
+            this.tbResults.Name = "tbResults";
+            this.tbResults.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.tbResults.Size = new System.Drawing.Size(540, 201);
+            this.tbResults.TabIndex = 19;
+            this.tbResults.WordWrap = false;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(671, 532);
+            this.ClientSize = new System.Drawing.Size(671, 642);
+            this.Controls.Add(this.tbResults);
             this.Controls.Add(this.butFloor);
             this.Controls.Add(this.butSpread);
             this.Controls.Add(this.butWide);
@@ -269,5 +281,6 @@
         private System.Windows.Forms.Button butWide;
         private System.Windows.Forms.Button butSpread;
         private System.Windows.Forms.Button butFloor;
+        private System.Windows.Forms.TextBox tbResults;
     }
 }

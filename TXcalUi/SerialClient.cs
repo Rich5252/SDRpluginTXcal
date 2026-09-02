@@ -21,7 +21,7 @@ namespace SerialDemo
 
         public void Open(string portName, int baudRate,
             Parity parity = Parity.None, int dataBits = 8, StopBits stopBits = StopBits.One,
-            int readTimeoutMs = 3000, int writeTimeoutMs = 2000)
+            int readTimeoutMs = 1000, int writeTimeoutMs = 2000)
         {
             Close();
 
@@ -125,7 +125,7 @@ namespace SerialDemo
 
                 _port.DiscardInBuffer();   // drop anything stale left over from before
                 _port.Write(message);  // appends "\r\n" automatically
-                return _port.ReadLine();   // blocks until "\r\n"; terminator is stripped from the result
+                return ReadLine();   // blocks until "\r\n"; terminator is stripped from the result
             }
         }
 
@@ -134,7 +134,21 @@ namespace SerialDemo
             lock (_lock) // guards against two callers using the port at once
             {
                 if (_port == null || !_port.IsOpen) return "ReadLine() ERROR: Serial port is not open";
-                return _port.ReadLine();   // blocks until "\r\n"; terminator is stripped from the result
+
+                string strReply = "";
+                try
+                {
+                    strReply = _port.ReadLine();   // blocks until "\r\n"; terminator is stripped from the result
+                }
+                catch (TimeoutException)
+                {
+                    strReply = "ReadLine() ERROR: Timeout waiting for reply";
+                }
+                catch (Exception ex)
+                {
+                    strReply = $"ReadLine() ERROR: {ex.Message}";
+                }
+                return strReply;
             }
         }
 

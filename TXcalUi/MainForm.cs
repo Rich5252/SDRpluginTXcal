@@ -110,20 +110,20 @@ namespace TXcalUi
             double fusb3 = 2 * ft2 - ft1; // 14.203100 MHz
 
             double at900 = MeasPower(ft1, 5, NoFreqAdjust);
-            tbData.AppendText($"3rd IMD (250Hz bndw) - 900Hz ref level:, {at900:F3}, dBm\r\n");
+            tbResults.AppendText($"3rd IMD (250Hz bndw) - 900Hz ref level:, {at900:F3}, dBm\r\n");
 
             double atNeg500 = MeasPower(flsb3, 5, NoFreqAdjust);
             atNeg500 = MeasPower(flsb3, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             double diff = atNeg500 - at900;
-            tbData.AppendText($"Low 3rd IMD:, {diff:F3}, dB\r\n");
+            tbResults.AppendText($"Low 3rd IMD:, {diff:F3}, dB\r\n");
 
             at900 = MeasPower(ft2, 5, NoFreqAdjust);
-            tbData.AppendText($"3rd IMD - 1900Hz ref level:, {at900:F3}, dBm\r\n");
+            tbResults.AppendText($"3rd IMD - 1900Hz ref level:, {at900:F3}, dBm\r\n");
 
             atNeg500 = MeasPower(fusb3, 5, NoFreqAdjust);
             atNeg500 = MeasPower(fusb3, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             diff = atNeg500 - at900;
-            tbData.AppendText($"High 3rd IMD:, {diff:F3}, dB\r\n\r\n");
+            tbResults.AppendText($"High 3rd IMD:, {diff:F3}, dB\r\n\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
@@ -147,7 +147,7 @@ namespace TXcalUi
             for (int i = 0; i < nMeas; i++)
             {
                 power = _controller.GetPower(0);
-                //tbData.AppendText($"GetPower returned {power:F6} dBm\r\n");
+                //tbResults.AppendText($"GetPower returned {power:F6} dBm\r\n");
                 avgPower += power;
                 System.Threading.Thread.Sleep(250); // wait a bit before the next measurement
             }
@@ -165,7 +165,7 @@ namespace TXcalUi
             if (strCmd == "P")
             {
                 strRet = _serial.ReadLine();
-                tbData.AppendText($"Response: {strRet}\r\n");
+                tbResults.AppendText($"Response: {strRet}\r\n");
             }
             tbCmd.Text = string.Empty;
 
@@ -178,17 +178,17 @@ namespace TXcalUi
             _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for image measurement
 
             double at900 = MeasPower(14200000, 5);
-            tbData.AppendText($"Image - 3k bndw ref level:, {at900:F3}, dBm\r\n");
+            tbResults.AppendText($"Image - 3k bndw ref level:, {at900:F3}, dBm\r\n");
 
             double atNeg500 = MeasPower(14216000, 5);
             atNeg500 = MeasPower(14216000, 5);
             double diff = atNeg500 - at900;
-            tbData.AppendText($"High 16k Image:, {diff:F3}, dB\r\n");
+            tbResults.AppendText($"High 16k Image:, {diff:F3}, dB\r\n");
 
             atNeg500 = MeasPower(14184000, 5);
             atNeg500 = MeasPower(14184000, 5);
             diff = atNeg500 - at900;
-            tbData.AppendText($"Low 16k Image:, {diff:F3}, dB\r\n\r\n");
+            tbResults.AppendText($"Low 16k Image:, {diff:F3}, dB\r\n\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
 
@@ -200,17 +200,17 @@ namespace TXcalUi
             _controller.SetFilterBandwidth(Channel, 250); // set filter to 3 kHz for image measurement
 
             double at900 = MeasPower(14200000 + 300 + 125, 5);
-            tbData.AppendText($"Micr Test (250Hz bndw)- ref level:, {at900:F3}, dBm\r\n");
+            tbResults.AppendText($"Micr Test (250Hz bndw)- ref level:, {at900:F3}, dBm\r\n");
 
             double atNeg500 = MeasPower(14200000 - 300 - 125, 5);
             atNeg500 = MeasPower(14200000 - 300 - 125, 5);
             double diff = atNeg500 - at900;
-            tbData.AppendText($"Micr Test - Low 250:, {diff:F3}, dB\r\n");
+            tbResults.AppendText($"Micr Test - Low 250:, {diff:F3}, dB\r\n");
 
             atNeg500 = MeasPower(14200000 + 3000 - 125, 5);
             atNeg500 = MeasPower(14200000 + 3000 + 3000 - 125, 5);
             diff = atNeg500 - at900;
-            tbData.AppendText($"Hi 250:, {diff:F3}, dB\r\n\r\n");
+            tbResults.AppendText($"Hi 250:, {diff:F3}, dB\r\n\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
@@ -218,26 +218,26 @@ namespace TXcalUi
         private void butMeas_Click(object sender, EventArgs e)
         {
             StopFlg = false; // reset the stop flag before starting the measurement loop
-            tbData.Text = string.Empty;
+            tbResults.Text = string.Empty;
             double power = 0;
             double avgPower = 0;
             string level = string.Empty;
 
             level = _serial.Send("s");
-            tbData.AppendText($"{level}\r\n");
+            tbResults.AppendText($"{level}\r\n");
 
             for (int i = 0; i < 10; i++) level = _serial.Send("j");
             for (int i = 0; i < 5; i++) level = _serial.Send("i");
-            tbData.AppendText($"{level}\r\n\r\n");
+            tbResults.AppendText($"{level}\r\n\r\n");
 
             for (int i = 0; i < 50; i++) level = _serial.Send("-");
-            tbData.AppendText($"{level}\r\n\r\n");
+            tbResults.AppendText($"{level}\r\n\r\n");
 
             while (true)
             {
                 //set next level
                 level = _serial.Send(".");
-                tbData.AppendText($"{level}, ");
+                tbResults.AppendText($"{level}, ");
                 int nMeas = 5;
 
                 power = 0;
@@ -245,18 +245,18 @@ namespace TXcalUi
                 for (int i = 0; i < nMeas; i++)
                 {
                     power = _controller.GetPower(Channel);
-                    //tbData.AppendText($"GetPower returned {power:F6} dBm\r\n");
+                    //tbResults.AppendText($"GetPower returned {power:F6} dBm\r\n");
                     avgPower += power;
 
                     System.Threading.Thread.Sleep(250); // wait a bit before the next measurement
                 }
 
                 avgPower = avgPower / nMeas; // average the 5 measurements
-                tbData.AppendText($"{avgPower:F6} dBm\r\n");
+                tbResults.AppendText($"{avgPower:F6} dBm\r\n");
 
                 if (StopFlg)
                 {
-                    tbData.AppendText("Measurement loop stopped by user.\r\n");
+                    tbResults.AppendText("Measurement loop stopped by user.\r\n");
                     StopFlg = false; // reset the flag for next time
 
                     tbCmd.Focus(); // put the cursor back in the command box for convenience
@@ -275,7 +275,7 @@ namespace TXcalUi
         private void butMeasDuty_Click(object sender, EventArgs e)
         {
             StopFlg = false; // reset the stop flag before starting the measurement loop
-            tbData.Text = string.Empty;
+            tbResults.Text = string.Empty;
             double power = 0;
             double avgPower = 0;
             string strRet = string.Empty;
@@ -284,11 +284,11 @@ namespace TXcalUi
             _controller.SetFilterBandwidth(Channel, 250); // set filter to 3 kHz for image measurement
 
             strRet = _serial.Send("s");
-            tbData.AppendText($"{strRet}\r\n");
+            tbResults.AppendText($"{strRet}\r\n");
 
             strRet = _serial.Send("d");
             if (!strRet.Contains("override ON")) strRet = _serial.Send("d");
-            tbData.AppendText($"{strRet}\r\n");
+            tbResults.AppendText($"{strRet}\r\n");
 
             int nMeas = 10;
             avgPower = MeasPower(14201000, nMeas); // time to settle agc
@@ -299,15 +299,29 @@ namespace TXcalUi
                 //set next level
                 if (i == 0) strRet = _serial.Send("<");     // first time through, set to lowest level
                 else strRet = _serial.Send(">");
-                tbData.AppendText($"{strRet}, ");
 
+                for (int j = 0; j < 5; j++)     //retry
+                {
+                    tbResults.AppendText($"{strRet}, ");
+
+                    if (strRet.Contains("ERROR"))
+                    {
+                        strRet = _serial.Send("<");
+                        i--;
+                        if (i < 0) i = 0;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
 
                 avgPower = MeasPower(14201000, nMeas); // measure at 14.2 MHz
-                tbData.AppendText($"{avgPower:F6} dBm\r\n");
+                tbResults.AppendText($"{avgPower:F6} dBm\r\n");
 
                 if (StopFlg)
                 {
-                    tbData.AppendText("Measurement loop stopped by user.\r\n");
+                    tbResults.AppendText("Measurement loop stopped by user.\r\n");
                     StopFlg = false; // reset the flag for next time
 
                     tbCmd.Focus(); // put the cursor back in the command box for convenience
@@ -315,7 +329,7 @@ namespace TXcalUi
                 }
             }
 
-            tbData.AppendText("Measurement loop completed.\r\n");
+            tbResults.AppendText("Measurement loop completed.\r\n");
             StopFlg = false; // reset the flag for next time
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
@@ -329,7 +343,7 @@ namespace TXcalUi
             double fbase = 14200000 + double.Parse(tbDeltaF.Text);
             double main = MeasPower(fbase, 5, NoFreqAdjust);
             main = MeasPower(fbase, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"Mid Band Test - Main level 3k bndw:, {main:F3}, dBm\r\n");
+            tbResults.AppendText($"Mid Band Test - Main level 3k bndw:, {main:F3}, dBm\r\n");
 
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to CW for IMD measurement
             _controller.SetFilterBandwidth(Channel, 750); // set filter to 3 kHz for IMD measurement
@@ -340,7 +354,7 @@ namespace TXcalUi
 
             double pwr = MeasPower(midFreq, 5, NoFreqAdjust);
             pwr = MeasPower(midFreq, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"Pwr mid 750Hz band:, {pwr - main:F3}, dB\r\n\r\n");
+            tbResults.AppendText($"Pwr mid 750Hz band:, {pwr - main:F3}, dB\r\n\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
 
@@ -361,15 +375,15 @@ namespace TXcalUi
 
             double main = MeasPower(fbase, 5, NoFreqAdjust);
             main = MeasPower(fbase, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"Wide Test Main Level (3k bndw):, {main:F3}, dBm\r\n");
+            tbResults.AppendText($"Wide Test Main Level (3k bndw):, {main:F3}, dBm\r\n");
 
             double pwr = MeasPower(f16kLo, 5, NoFreqAdjust);
             pwr = MeasPower(f16kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"Low 16k Image (3k bndw):, {pwr-main:F3}, dB\r\n");
+            tbResults.AppendText($"Low 16k Image (3k bndw):, {pwr-main:F3}, dB\r\n");
 
             pwr = MeasPower(f16kHi, 5, NoFreqAdjust);
             pwr = MeasPower(f16kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"High 16k Image (3k bndw):, {pwr - main:F3}, dB\r\n");
+            tbResults.AppendText($"High 16k Image (3k bndw):, {pwr - main:F3}, dB\r\n");
 
 
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorDigital); // set demodulator to CW for IMD measurement
@@ -377,19 +391,19 @@ namespace TXcalUi
 
             pwr = MeasPower(fwide12Lo, 5, NoFreqAdjust);
             pwr = MeasPower(fwide12Lo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"Low 12kHz wide:, {pwr - main:F3}, dB\r\n");
+            tbResults.AppendText($"Low 12kHz wide:, {pwr - main:F3}, dB\r\n");
 
             pwr = MeasPower(fwide12Hi, 5, NoFreqAdjust);
             pwr = MeasPower(fwide12Hi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"High 12k wide:, {pwr - main:F3}, dB\r\n");
+            tbResults.AppendText($"High 12k wide:, {pwr - main:F3}, dB\r\n");
 
             pwr = MeasPower(f78kLo, 5, NoFreqAdjust);
             pwr = MeasPower(f78kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"Low 78k Image:, {pwr - main:F3}, dB\r\n");
+            tbResults.AppendText($"Low 78k Image:, {pwr - main:F3}, dB\r\n");
 
             pwr = MeasPower(f78kHi, 5, NoFreqAdjust);
             pwr = MeasPower(f78kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"High 78k Image:, {pwr - main:F3}, dB\r\n\r\n");
+            tbResults.AppendText($"High 78k Image:, {pwr - main:F3}, dB\r\n\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
 
@@ -410,31 +424,31 @@ namespace TXcalUi
 
             double main = MeasPower(fbase, 5, NoFreqAdjust);
             main = MeasPower(fbase, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"Spread in 3k bndw - Main Level:, {main:F3}, dBm\r\n");
+            tbResults.AppendText($"Spread in 3k bndw - Main Level:, {main:F3}, dBm\r\n");
 
             double pwr = MeasPower(f5kLo, 5, NoFreqAdjust);
             pwr = MeasPower(f5kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"Low 5k leakage:, {pwr - main:F3}, dB\r\n");
+            tbResults.AppendText($"Low 5k leakage:, {pwr - main:F3}, dB\r\n");
 
             pwr = MeasPower(f5kHi, 5, NoFreqAdjust);
             pwr = MeasPower(f5kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"High 5k leakage:, {pwr - main:F3}, dB\r\n");
+            tbResults.AppendText($"High 5k leakage:, {pwr - main:F3}, dB\r\n");
 
             pwr = MeasPower(f10kLo, 5, NoFreqAdjust);
             pwr = MeasPower(f10kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"Low 10k leakage:, {pwr - main:F3}, dB\r\n");
+            tbResults.AppendText($"Low 10k leakage:, {pwr - main:F3}, dB\r\n");
 
             pwr = MeasPower(f10kHi, 5, NoFreqAdjust);
             pwr = MeasPower(f10kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"High 10k leakage:, {pwr - main:F3}, dB\r\n");
+            tbResults.AppendText($"High 10k leakage:, {pwr - main:F3}, dB\r\n");
 
             pwr = MeasPower(f20kLo, 5, NoFreqAdjust);
             pwr = MeasPower(f20kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"Low 20k leakage:, {pwr - main:F3}, dB\r\n");
+            tbResults.AppendText($"Low 20k leakage:, {pwr - main:F3}, dB\r\n");
 
             pwr = MeasPower(f20kHi, 5, NoFreqAdjust);
             pwr = MeasPower(f20kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"High 20k leakage:, {pwr - main:F3}, dB\r\n\r\n");
+            tbResults.AppendText($"High 20k leakage:, {pwr - main:F3}, dB\r\n\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
 
@@ -448,11 +462,11 @@ namespace TXcalUi
             _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for IMD measurement
 
             string strRet = _serial.Send("o");
-            tbData.AppendText($"{strRet}\r\n");
+            tbResults.AppendText($"{strRet}\r\n");
 
             double main = MeasPower(fbase, 10, NoFreqAdjust);
             main = MeasPower(fbase, 10, NoFreqAdjust);       //meas twice to give time for agc to settle
-            tbData.AppendText($"Noise Floor 3k bndw:, {main:F3}, dBm\r\n");
+            tbResults.AppendText($"Noise Floor 3k bndw:, {main:F3}, dBm\r\n");
 
             strRet = _serial.Send("o");
         }
