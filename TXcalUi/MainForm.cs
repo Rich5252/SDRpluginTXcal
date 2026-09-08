@@ -471,6 +471,40 @@ namespace TXcalUi
             strRet = _serial.Send("o");
         }
 
+        private void butWideIMD_Click(object sender, EventArgs e)
+        {
+            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to CW for IMD measurement
+            _controller.SetFilterBandwidth(Channel, 250);
+
+            double ft1 = 14200700 + double.Parse(tbDeltaF.Text); // 14.200700 MHz
+            double ft2 = 14201900 + double.Parse(tbDeltaF.Text); // 14.201900 MHz
+            double flsb3 = 2 * ft1 - ft2; // 14.199500 MHz
+            double fusb3 = 2 * ft2 - ft1; // 14.203100 MHz
+
+            double at900 = MeasPower(ft1, 5, NoFreqAdjust);
+            tbResults.AppendText($"Wide IMD (250Hz bndw) - 900Hz ref level:, {at900:F3}, dBm\r\n");
+
+            for (double deltaF = 0;  deltaF < 10000; deltaF += 1200)
+            {
+                double IMD = MeasPower(flsb3 - deltaF, 5, NoFreqAdjust);
+                IMD = MeasPower(flsb3 - deltaF, 5, NoFreqAdjust);
+                tbResults.AppendText($"Wide IMD (250Hz bndw) - freqHz/ampl:, {- 500 - deltaF}, {IMD - at900:F3}, dB\r\n");
+            }
+
+            double at1900 = MeasPower(ft2, 5, NoFreqAdjust);
+            tbResults.AppendText($"Wide IMD (250Hz bndw) - 1900Hz ref level:, {at1900:F3}, dBm\r\n");
+
+            for (double deltaF = 0; deltaF < 10000; deltaF += 1200)
+            {
+                double IMD = MeasPower(fusb3 + deltaF, 5, NoFreqAdjust);
+                IMD = MeasPower(fusb3 + deltaF, 5, NoFreqAdjust);
+                tbResults.AppendText($"Wide IMD (250Hz bndw) - freqHz/ampl:, {3100 + deltaF}, {IMD - at1900:F3}, dB\r\n");
+            }
+            tbResults.AppendText("\r\n");
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
+        }
+
         // Nothing native to release here on close -- SDRunoPlugin_TXcalUi's destructor
         // (native side) owns the lifetime of TXcalUiHost/TXcalControllerBridge and
         // tears them down when the plugin itself is destroyed.

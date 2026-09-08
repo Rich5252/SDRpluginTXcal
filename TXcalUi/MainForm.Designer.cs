@@ -35,6 +35,7 @@
             this.butSpread = new System.Windows.Forms.Button();
             this.butFloor = new System.Windows.Forms.Button();
             this.tbResults = new System.Windows.Forms.TextBox();
+            this.butWideIMD = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblFrequency
@@ -227,11 +228,22 @@
             this.tbResults.TabIndex = 19;
             this.tbResults.WordWrap = false;
             // 
+            // butWideIMD
+            // 
+            this.butWideIMD.Location = new System.Drawing.Point(570, 493);
+            this.butWideIMD.Name = "butWideIMD";
+            this.butWideIMD.Size = new System.Drawing.Size(89, 23);
+            this.butWideIMD.TabIndex = 20;
+            this.butWideIMD.Text = "Wide IMDs";
+            this.butWideIMD.UseVisualStyleBackColor = true;
+            this.butWideIMD.Click += new System.EventHandler(this.butWideIMD_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 642);
+            this.Controls.Add(this.butWideIMD);
             this.Controls.Add(this.tbResults);
             this.Controls.Add(this.butFloor);
             this.Controls.Add(this.butSpread);
@@ -282,5 +294,6 @@
         private System.Windows.Forms.Button butSpread;
         private System.Windows.Forms.Button butFloor;
         private System.Windows.Forms.TextBox tbResults;
+        private System.Windows.Forms.Button butWideIMD;
     }
 }
