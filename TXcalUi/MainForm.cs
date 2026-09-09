@@ -104,8 +104,8 @@ namespace TXcalUi
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to CW for IMD measurement
             _controller.SetFilterBandwidth(Channel, 250);
 
-            double ft1 = 14200700 + double.Parse(tbDeltaF.Text); // 14.200700 MHz
-            double ft2 = 14201900 + double.Parse(tbDeltaF.Text); // 14.201900 MHz
+            double ft1 = 14200000 + double.Parse(tbTone1.Text)  + double.Parse(tbCalF.Text); // 14.200700 MHz
+            double ft2 = 14200000 + double.Parse(tbTone2.Text)  + double.Parse(tbCalF.Text); // 14.201900 MHz
             double flsb3 = 2 * ft1 - ft2; // 14.199500 MHz
             double fusb3 = 2 * ft2 - ft1; // 14.203100 MHz
 
@@ -133,7 +133,7 @@ namespace TXcalUi
         private double MeasPower(double freqHz, int nMeas, bool adjustFreq = true)
         {
             double NewFreq = freqHz;
-            if (adjustFreq) NewFreq = freqHz + double.Parse(tbDeltaF.Text);
+            if (adjustFreq) NewFreq = freqHz + double.Parse(tbCalF.Text);
 
             if (LastFreq != NewFreq)
             {
@@ -350,7 +350,7 @@ namespace TXcalUi
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorUSB); // set demodulator to CW for IMD measurement
             _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for IMD measurement
 
-            double fbase = 14200000 + double.Parse(tbDeltaF.Text);
+            double fbase = 14200000 + double.Parse(tbCalF.Text);
             double main = MeasPower(fbase, 5, NoFreqAdjust);
             main = MeasPower(fbase, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"Mid Band Test - Main level 3k bndw:, {main:F3}, dBm\r\n");
@@ -358,8 +358,8 @@ namespace TXcalUi
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to CW for IMD measurement
             _controller.SetFilterBandwidth(Channel, 750); // set filter to 3 kHz for IMD measurement
 
-            double ft1 = 14200700 + double.Parse(tbDeltaF.Text); // 14.200700 MHz
-            double ft2 = 14201900 + double.Parse(tbDeltaF.Text); // 14.201900 MHz
+            double ft1 = 14200000 + double.Parse(tbTone1.Text)  + double.Parse(tbCalF.Text); // 14.200700 MHz
+            double ft2 = 14200000 + double.Parse(tbTone2.Text)  + double.Parse(tbCalF.Text); // 14.201900 MHz
             double midFreq = (ft1 + ft2) / 2; // 14.201300 MHz
 
             double pwr = MeasPower(midFreq, 5, NoFreqAdjust);
@@ -372,7 +372,7 @@ namespace TXcalUi
 
         private void butWide_Click(object sender, EventArgs e)
         {
-            double fbase = 14200000 + double.Parse(tbDeltaF.Text); // 14.200700 MHz
+            double fbase = 14200000 + double.Parse(tbCalF.Text); // 14.200700 MHz
             double f16kLo = fbase - 16000; // 14.198700 MHz
             double f16kHi = fbase + 16000; // 14.202700 MHz
             double fwide12Lo = fbase - 12000; // 14.199800 MHz
@@ -421,7 +421,7 @@ namespace TXcalUi
 
         private void butSpread_Click(object sender, EventArgs e)
         {
-            double fbase = 14200000 + double.Parse(tbDeltaF.Text); // 14.200700 MHz
+            double fbase = 14200000 + double.Parse(tbCalF.Text); // 14.200700 MHz
             double f5kLo = fbase - 5000; 
             double f5kHi = fbase + 5000; 
             double f10kLo = fbase - 10000; 
@@ -466,7 +466,7 @@ namespace TXcalUi
 
         private void butFloor_Click(object sender, EventArgs e)
         {
-            double fbase = 14200000 + double.Parse(tbDeltaF.Text); // 14.200700 MHz
+            double fbase = 14200000 + double.Parse(tbCalF.Text); // 14.200700 MHz
 
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorUSB); // set demodulator to CW for IMD measurement
             _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for IMD measurement
@@ -486,29 +486,30 @@ namespace TXcalUi
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to CW for IMD measurement
             _controller.SetFilterBandwidth(Channel, 250);
 
-            double ft1 = 14200700 + double.Parse(tbDeltaF.Text); // 14.200700 MHz
-            double ft2 = 14201900 + double.Parse(tbDeltaF.Text); // 14.201900 MHz
+            double ft1 = 14200000 + double.Parse(tbTone1.Text)  + double.Parse(tbCalF.Text); // 14.200700 MHz
+            double ft2 = 14200000 + double.Parse(tbTone2.Text)  + double.Parse(tbCalF.Text); // 14.201900 MHz
             double flsb3 = 2 * ft1 - ft2; // 14.199500 MHz
             double fusb3 = 2 * ft2 - ft1; // 14.203100 MHz
 
             double at900 = MeasPower(ft1, 5, NoFreqAdjust);
-            tbResults.AppendText($"Wide IMD (250Hz bndw) - 900Hz ref level:, {at900:F3}, dBm\r\n");
+            tbResults.AppendText($"Wide IMD (250Hz bndw) - {tbTone1.Text}Hz ref level:, {at900:F3}, dBm\r\n");
 
-            for (double deltaF = 0;  deltaF < 10000; deltaF += 1200)
+            double ToneDiff = ft2 - ft1;
+            for (double deltaF = 0;  deltaF < 10000; deltaF += ToneDiff)
             {
                 double IMD = MeasPower(flsb3 - deltaF, 5, NoFreqAdjust);
                 IMD = MeasPower(flsb3 - deltaF, 5, NoFreqAdjust);
-                tbResults.AppendText($"Wide IMD (250Hz bndw) - freqHz/ampl:, {- 500 - deltaF}, {IMD - at900:F3}, dB\r\n");
+                tbResults.AppendText($"Wide IMD (250Hz bndw) - freqHz/ampl:, {double.Parse(tbTone1.Text) - ToneDiff - deltaF}, {IMD - at900:F3}, dB\r\n");
             }
 
             double at1900 = MeasPower(ft2, 5, NoFreqAdjust);
-            tbResults.AppendText($"Wide IMD (250Hz bndw) - 1900Hz ref level:, {at1900:F3}, dBm\r\n");
+            tbResults.AppendText($"Wide IMD (250Hz bndw) - {tbTone2.Text}Hz ref level:, {at1900:F3}, dBm\r\n");
 
-            for (double deltaF = 0; deltaF < 10000; deltaF += 1200)
+            for (double deltaF = 0; deltaF < 10000; deltaF += ToneDiff)
             {
                 double IMD = MeasPower(fusb3 + deltaF, 5, NoFreqAdjust);
                 IMD = MeasPower(fusb3 + deltaF, 5, NoFreqAdjust);
-                tbResults.AppendText($"Wide IMD (250Hz bndw) - freqHz/ampl:, {3100 + deltaF}, {IMD - at1900:F3}, dB\r\n");
+                tbResults.AppendText($"Wide IMD (250Hz bndw) - freqHz/ampl:, {double.Parse(tbTone2.Text) + ToneDiff + deltaF}, {IMD - at1900:F3}, dB\r\n");
             }
             tbResults.AppendText("\r\n");
 

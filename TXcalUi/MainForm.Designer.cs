@@ -26,7 +26,7 @@
             this.tbCmd = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.tbDeltaF = new System.Windows.Forms.TextBox();
+            this.tbCalF = new System.Windows.Forms.TextBox();
             this.butImage = new System.Windows.Forms.Button();
             this.butMicr = new System.Windows.Forms.Button();
             this.butMeasDuty = new System.Windows.Forms.Button();
@@ -66,6 +66,9 @@
             this.label16 = new System.Windows.Forms.Label();
             this.tbCurve = new System.Windows.Forms.TextBox();
             this.label17 = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.tbTone1 = new System.Windows.Forms.TextBox();
+            this.tbTone2 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // lblFrequency
@@ -146,16 +149,16 @@
             // 
             // tbCmd
             // 
-            this.tbCmd.Location = new System.Drawing.Point(327, 106);
+            this.tbCmd.Location = new System.Drawing.Point(221, 106);
             this.tbCmd.Name = "tbCmd";
-            this.tbCmd.Size = new System.Drawing.Size(100, 20);
+            this.tbCmd.Size = new System.Drawing.Size(72, 20);
             this.tbCmd.TabIndex = 8;
             this.tbCmd.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.tbCmd_KeyPress);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(294, 110);
+            this.label1.Location = new System.Drawing.Point(192, 109);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(27, 13);
             this.label1.TabIndex = 9;
@@ -166,17 +169,17 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(20, 62);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(39, 13);
+            this.label2.Size = new System.Drawing.Size(31, 13);
             this.label2.TabIndex = 10;
-            this.label2.Text = "delta F";
+            this.label2.Text = "Cal F";
             // 
-            // tbDeltaF
+            // tbCalF
             // 
-            this.tbDeltaF.Location = new System.Drawing.Point(65, 55);
-            this.tbDeltaF.Name = "tbDeltaF";
-            this.tbDeltaF.Size = new System.Drawing.Size(48, 20);
-            this.tbDeltaF.TabIndex = 11;
-            this.tbDeltaF.Text = "0";
+            this.tbCalF.Location = new System.Drawing.Point(65, 55);
+            this.tbCalF.Name = "tbCalF";
+            this.tbCalF.Size = new System.Drawing.Size(48, 20);
+            this.tbCalF.TabIndex = 11;
+            this.tbCalF.Text = "0";
             // 
             // butImage
             // 
@@ -508,11 +511,39 @@
             this.label17.TabIndex = 49;
             this.label17.Text = "I typ";
             // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(299, 110);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(67, 13);
+            this.label18.TabIndex = 51;
+            this.label18.Text = "2Tone Freqs";
+            // 
+            // tbTone1
+            // 
+            this.tbTone1.Location = new System.Drawing.Point(375, 107);
+            this.tbTone1.Name = "tbTone1";
+            this.tbTone1.Size = new System.Drawing.Size(53, 20);
+            this.tbTone1.TabIndex = 52;
+            this.tbTone1.Text = "700";
+            // 
+            // tbTone2
+            // 
+            this.tbTone2.Location = new System.Drawing.Point(434, 107);
+            this.tbTone2.Name = "tbTone2";
+            this.tbTone2.Size = new System.Drawing.Size(53, 20);
+            this.tbTone2.TabIndex = 53;
+            this.tbTone2.Text = "1700";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 642);
+            this.Controls.Add(this.tbTone2);
+            this.Controls.Add(this.tbTone1);
+            this.Controls.Add(this.label18);
             this.Controls.Add(this.tbCurve);
             this.Controls.Add(this.label17);
             this.Controls.Add(this.tbDelay);
@@ -552,7 +583,7 @@
             this.Controls.Add(this.butMeasDuty);
             this.Controls.Add(this.butMicr);
             this.Controls.Add(this.butImage);
-            this.Controls.Add(this.tbDeltaF);
+            this.Controls.Add(this.tbCalF);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tbCmd);
@@ -585,7 +616,7 @@
         private System.Windows.Forms.TextBox tbCmd;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox tbDeltaF;
+        private System.Windows.Forms.TextBox tbCalF;
         private System.Windows.Forms.Button butImage;
         private System.Windows.Forms.Button butMicr;
         private System.Windows.Forms.Button butMeasDuty;
@@ -625,5 +656,8 @@
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.TextBox tbCurve;
         private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.TextBox tbTone1;
+        private System.Windows.Forms.TextBox tbTone2;
     }
 }
