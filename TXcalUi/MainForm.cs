@@ -166,6 +166,16 @@ namespace TXcalUi
             {
                 strRet = _serial.ReadLine();
                 tbResults.AppendText($"Response: {strRet}\r\n");
+                UpdatePresets(strRet);
+            }
+            int n;
+            bool isNumeric = int.TryParse(strCmd, out n);
+            if (isNumeric && n >= 0 && n <= 9)
+            {
+                strRet = _serial.Send("P");
+                strRet = _serial.ReadLine();
+                tbResults.AppendText($"Response: {strRet}\r\n");
+                UpdatePresets(strRet);
             }
             tbCmd.Text = string.Empty;
 
@@ -503,6 +513,61 @@ namespace TXcalUi
             tbResults.AppendText("\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
+        }
+
+
+         public enum Presets
+            {
+                preamble,
+                live,
+                audio_source,
+                relative_delay_samples,
+                env_pwm_offset,
+                env_pwm_scale,
+                env_gdeq_enable,
+                adc_lpf_mode,
+                eq_enable,
+                compressor_enable,
+                master_gain_db,
+                ad9851_output_enable,
+                env_predistort_enable,
+                env_floor,
+                freq_dev_slew_limit_hz,
+                envelope_interp_enable,
+                envelope_interp_curve
+            }
+            //  Response:     { "Live", AUDIO_SRC_TWOTONE, 2.00f, 0.20f, 0.90f, true, ADC_LPF_MODE_OFF, false, false, -1.4f, true, true, 0.00f, SSB_DSP_FREQ_DEV_SLEW_UNLIMITED_HZ, false, ENVELOPE_INTERP_CURVE_CATMULL_ROM, true, true, ENV_GDEQ_VARIANT_CANDIDATE_B },
+
+        private void UpdatePresets(string Poutput)
+        {
+
+            string[] parts = Poutput.Split(new char[] { '{', '}', ',' }, StringSplitOptions.RemoveEmptyEntries);
+
+            string[] subparts = parts[(int)Presets.audio_source].Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            tbPreset.Text = subparts[2];
+
+            tbDelay.Text = parts[(int)Presets.relative_delay_samples];
+            tbOffset.Text = parts[(int)Presets.env_pwm_offset];
+            tbScale.Text = parts[(int)Presets.env_pwm_scale];
+            tbGdeq.Text = parts[(int)Presets.env_gdeq_enable];
+
+            subparts = parts[(int)Presets.adc_lpf_mode].Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            tbLPF.Text = subparts[3];
+
+            tbEQU.Text = parts[(int)Presets.eq_enable];
+            tbComp.Text = parts[(int)Presets.compressor_enable];
+            tbGain.Text = parts[(int)Presets.master_gain_db];
+            tbRFon.Text = parts[(int)Presets.ad9851_output_enable];
+            tbDlin.Text = parts[(int)Presets.env_predistort_enable];
+            tbFloor.Text = parts[(int)Presets.env_floor];
+
+            subparts = parts[(int)Presets.freq_dev_slew_limit_hz].Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            tbSlew.Text = subparts[5];
+
+            tbInterp.Text = parts[(int)Presets.envelope_interp_enable];
+
+            subparts = parts[(int)Presets.envelope_interp_curve].Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            tbCurve.Text = subparts[3];
         }
 
         // Nothing native to release here on close -- SDRunoPlugin_TXcalUi's destructor
