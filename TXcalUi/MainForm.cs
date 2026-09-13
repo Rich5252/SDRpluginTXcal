@@ -18,12 +18,35 @@ namespace TXcalUi
 
         private bool StopFlg = false; // set by the Stop button to signal the measurement loop to exit
 
-        private SerialClient _serial = new SerialClient(); // optional SerialClient for talking to an external device over a COM port
+        private readonly AsyncSerialClient _serial = new AsyncSerialClient(); // async client for talking to the ESP32 over a COM port
 
         public MainForm(ITXcalController controller)
         {
             _controller = controller ?? throw new ArgumentNullException(nameof(controller));
             InitializeComponent();
+
+            // "P" always replies with a fixed "-> settings line ..." marker line followed
+            // by exactly one data line -- register it so SendTaggedAsync can pull that pair
+            // out of the stream correctly even amid other traffic. Add further tagged
+            // commands here as you confirm their marker text and fixed line count.
+            _serial.RegisterTaggedCommand("P", "settings line (paste into settingsPresets[] in settings.h, then rename \"Live\")", 2);
+
+            _serial.DataReceived += Serial_DataReceived;
+        }
+
+        // Fires on a background thread (the same one SerialPort raises its own
+        // DataReceived on) -- marshal onto the UI thread before touching tbData.
+        private void Serial_DataReceived(string line)
+        {
+            if (tbData.IsHandleCreated)
+            {
+                try
+                {
+                    tbData.BeginInvoke((Action)(() => tbData.AppendText(line + "\r\n")));
+                }
+                catch (ObjectDisposedException) { } // form closing race -- nothing to do
+                catch (InvalidOperationException) { } // handle destroyed mid-invoke -- same
+            }
         }
 
         // Invoked by TXcalUiHost whenever SDRunoPlugin_TXcal::HandleEvent fires.
@@ -85,17 +108,26 @@ namespace TXcalUi
         }
 
         
-        private void MainForm_Shown(object sender, EventArgs e)
+        private async void MainForm_Shown(object sender, EventArgs e)
         {
-            System.Threading.Thread.Sleep(1000);            //wait for esp to wake up
-            _serial.OpenAndSilenceEsp32("COM14", 921600); // adjust COM port and baud rate as needed
-            tbData.AppendText("Serial port opened and ESP32 silenced.\r\n");
+            await Task.Delay(1000); // wait for esp to wake up, without blocking the UI thread
+
+            try
+            {
+                await _serial.OpenAndSilenceEsp32Async("COM14", 921600); // adjust COM port and baud rate as needed
+                tbData.AppendText("Serial port opened and ESP32 silenced.\r\n");
+            }
+            catch (Exception ex)
+            {
+                tbData.AppendText($"Failed to open serial port: {ex.Message}\r\n");
+            }
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            _serial.DataReceived -= Serial_DataReceived;
             _serial.Close();
         }
 
@@ -156,29 +188,44 @@ namespace TXcalUi
         }
 
 
-        private void tbCmd_KeyPress(object sender, KeyPressEventArgs e)
+        private async void tbCmd_KeyPress(object sender, KeyPressEventArgs e)
         {
             string strCmd = e.KeyChar.ToString();
-            string strRet = _serial.Send(strCmd);
             tbData.AppendText($"Command sent: {strCmd}\r\n");
-            tbData.AppendText($"Response: {strRet}\r\n");
+
             if (strCmd == "P")
             {
-                strRet = _serial.ReadLine();
-                tbResults.AppendText($"Response: {strRet}\r\n");
-                UpdatePresets(strRet);
+                // "P" is a registered tagged command -- SendTaggedAsync waits for and
+                // returns both its fixed lines (the "-> ..." marker plus the one data
+                // line) together, correctly even if other traffic is interleaved.
+                string[] pLines = await _serial.SendTaggedAsync("P");
+                tbData.AppendText($"Response: {pLines[0]}\r\n");
+                if (pLines.Length > 1)
+                {
+                    tbResults.AppendText($"Response: {pLines[1]}\r\n");
+                    UpdatePresets(pLines[1]);
+                }
             }
-            int n;
-            bool isNumeric = int.TryParse(strCmd, out n);
-            if (isNumeric && n >= 0 && n <= 9)
+            else
             {
-                strRet = _serial.Send("P");
-                strRet = _serial.ReadLine();
-                tbResults.AppendText($"Response: {strRet}\r\n");
-                UpdatePresets(strRet);
-            }
-            tbCmd.Text = string.Empty;
+                string strRet = await _serial.SendExclusiveAsync(strCmd);
+                tbData.AppendText($"Response: {strRet}\r\n");
 
+                bool isNumeric = int.TryParse(strCmd, out int n);
+                if (isNumeric && n >= 0 && n <= 9)
+                {
+                    // Selecting a preset by number -- follow up with "P" to fetch and
+                    // display the settings it just switched to.
+                    string[] pLines = await _serial.SendTaggedAsync("P");
+                    if (pLines.Length > 1)
+                    {
+                        tbResults.AppendText($"Response: {pLines[1]}\r\n");
+                        UpdatePresets(pLines[1]);
+                    }
+                }
+            }
+
+            tbCmd.Text = string.Empty;
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
@@ -225,7 +272,7 @@ namespace TXcalUi
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
-        private void butMeas_Click(object sender, EventArgs e)
+        private async void butMeas_Click(object sender, EventArgs e)
         {
             StopFlg = false; // reset the stop flag before starting the measurement loop
             tbResults.Text = string.Empty;
@@ -233,45 +280,50 @@ namespace TXcalUi
             double avgPower = 0;
             string level = string.Empty;
 
-            level = _serial.Send("s");
-            tbResults.AppendText($"{level}\r\n");
-
-            for (int i = 0; i < 10; i++) level = _serial.Send("j");
-            for (int i = 0; i < 5; i++) level = _serial.Send("i");
-            tbResults.AppendText($"{level}\r\n\r\n");
-
-            for (int i = 0; i < 50; i++) level = _serial.Send("-");
-            tbResults.AppendText($"{level}\r\n\r\n");
-
-            while (true)
+            try
             {
-                //set next level
-                level = _serial.Send(".");
-                tbResults.AppendText($"{level}, ");
-                int nMeas = 5;
+                level = await _serial.SendExclusiveAsync("s");
+                tbResults.AppendText($"{level}\r\n");
 
-                power = 0;
-                avgPower = 0;
-                for (int i = 0; i < nMeas; i++)
+                for (int i = 0; i < 10; i++) level = await _serial.SendExclusiveAsync("j");
+                for (int i = 0; i < 5; i++) level = await _serial.SendExclusiveAsync("i");
+                tbResults.AppendText($"{level}\r\n\r\n");
+
+                for (int i = 0; i < 50; i++) level = await _serial.SendExclusiveAsync("-");
+                tbResults.AppendText($"{level}\r\n\r\n");
+
+                while (true)
                 {
-                    power = _controller.GetPower(Channel);
-                    //tbResults.AppendText($"GetPower returned {power:F6} dBm\r\n");
-                    avgPower += power;
+                    //set next level
+                    level = await _serial.SendExclusiveAsync(".");
+                    tbResults.AppendText($"{level}, ");
+                    int nMeas = 5;
 
-                    System.Threading.Thread.Sleep(250); // wait a bit before the next measurement
+                    power = 0;
+                    avgPower = 0;
+                    for (int i = 0; i < nMeas; i++)
+                    {
+                        power = _controller.GetPower(Channel);
+                        //tbResults.AppendText($"GetPower returned {power:F6} dBm\r\n");
+                        avgPower += power;
+
+                        await Task.Delay(250); // wait a bit before the next measurement, without blocking the UI thread
+                    }
+
+                    avgPower = avgPower / nMeas; // average the 5 measurements
+                    tbResults.AppendText($"{avgPower:F6} dBm\r\n");
+
+                    if (StopFlg)
+                    {
+                        tbResults.AppendText("Measurement loop stopped by user.\r\n");
+                        StopFlg = false; // reset the flag for next time
+                        return;
+                    }
                 }
-
-                avgPower = avgPower / nMeas; // average the 5 measurements
-                tbResults.AppendText($"{avgPower:F6} dBm\r\n");
-
-                if (StopFlg)
-                {
-                    tbResults.AppendText("Measurement loop stopped by user.\r\n");
-                    StopFlg = false; // reset the flag for next time
-
-                    tbCmd.Focus(); // put the cursor back in the command box for convenience
-                    return;
-                }
+            }
+            finally
+            {
+                tbCmd.Focus(); // put the cursor back in the command box for convenience
             }
         }
 
@@ -282,7 +334,7 @@ namespace TXcalUi
         }
 
 
-        private void butMeasDuty_Click(object sender, EventArgs e)
+        private async void butMeasDuty_Click(object sender, EventArgs e)
         {
             StopFlg = false; // reset the stop flag before starting the measurement loop
             tbResults.Text = string.Empty;
@@ -290,59 +342,62 @@ namespace TXcalUi
             double avgPower = 0;
             string strRet = string.Empty;
 
-            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to USB for image measurement
-            _controller.SetFilterBandwidth(Channel, 250); // set filter to 3 kHz for image measurement
-
-            strRet = _serial.Send("s");
-            tbResults.AppendText($"{strRet}\r\n");
-
-            strRet = _serial.Send("d");
-            if (!strRet.Contains("override ON")) strRet = _serial.Send("d");
-            tbResults.AppendText($"{strRet}\r\n");
-
-            int nMeas = 10;
-            avgPower = MeasPower(14201000, nMeas); // time to settle agc
-
-            int i = 0;
-            for (i = 0; i < 1026; i++)  
+            try
             {
-                //set next level
-                if (i == 0) strRet = _serial.Send("<");     // first time through, set to lowest level
-                else strRet = _serial.Send(">");
+                _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorCW); // set demodulator to USB for image measurement
+                _controller.SetFilterBandwidth(Channel, 250); // set filter to 3 kHz for image measurement
 
-                for (int j = 0; j < 5; j++)     //retry
+                strRet = await _serial.SendExclusiveAsync("s");
+                tbResults.AppendText($"{strRet}\r\n");
+
+                strRet = await _serial.SendExclusiveAsync("d");
+                if (!strRet.Contains("override ON")) strRet = await _serial.SendExclusiveAsync("d");
+                tbResults.AppendText($"{strRet}\r\n");
+
+                int nMeas = 10;
+                avgPower = MeasPower(14201000, nMeas); // time to settle agc
+
+                int i = 0;
+                for (i = 0; i < 1026; i++)
                 {
-                    tbResults.AppendText($"{strRet}, ");
+                    //set next level
+                    if (i == 0) strRet = await _serial.SendExclusiveAsync("<");     // first time through, set to lowest level
+                    else strRet = await _serial.SendExclusiveAsync(">");
 
-                    if (strRet.Contains("ERROR"))
+                    for (int j = 0; j < 5; j++)     //retry
                     {
-                        strRet = _serial.Send("<");
-                        i--;
-                        if (i < 0) i = 0;
+                        tbResults.AppendText($"{strRet}, ");
+
+                        if (strRet.Contains("ERROR"))
+                        {
+                            strRet = await _serial.SendExclusiveAsync("<");
+                            i--;
+                            if (i < 0) i = 0;
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
-                    else
+
+                    avgPower = MeasPower(14201000, nMeas); // measure at 14.2 MHz
+                    tbResults.AppendText($"{avgPower:F6} dBm\r\n");
+
+                    if (StopFlg)
                     {
-                        break;
+                        tbResults.AppendText("Measurement loop stopped by user.\r\n");
+                        StopFlg = false; // reset the flag for next time
+                        return;
                     }
                 }
 
-                avgPower = MeasPower(14201000, nMeas); // measure at 14.2 MHz
-                tbResults.AppendText($"{avgPower:F6} dBm\r\n");
-
-                if (StopFlg)
-                {
-                    tbResults.AppendText("Measurement loop stopped by user.\r\n");
-                    StopFlg = false; // reset the flag for next time
-
-                    tbCmd.Focus(); // put the cursor back in the command box for convenience
-                    return;
-                }
+                tbResults.AppendText("Measurement loop completed.\r\n");
+                StopFlg = false; // reset the flag for next time
             }
-
-            tbResults.AppendText("Measurement loop completed.\r\n");
-            StopFlg = false; // reset the flag for next time
-
-            tbCmd.Focus(); // put the cursor back in the command box for convenience
+            finally
+            {
+                tbCmd.Focus(); // put the cursor back in the command box for convenience
+            }
         }
 
         private void butMidBand_Click(object sender, EventArgs e)
@@ -464,21 +519,23 @@ namespace TXcalUi
 
         }
 
-        private void butFloor_Click(object sender, EventArgs e)
+        private async void butFloor_Click(object sender, EventArgs e)
         {
             double fbase = 14200000 + double.Parse(tbCalF.Text); // 14.200700 MHz
 
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorUSB); // set demodulator to CW for IMD measurement
             _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for IMD measurement
 
-            string strRet = _serial.Send("o");
+            string strRet = await _serial.SendExclusiveAsync("o");
             tbResults.AppendText($"{strRet}\r\n");
 
             double main = MeasPower(fbase, 10, NoFreqAdjust);
             main = MeasPower(fbase, 10, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"Noise Floor 3k bndw:, {main:F3}, dBm\r\n");
 
-            strRet = _serial.Send("o");
+            strRet = await _serial.SendExclusiveAsync("o");
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
         private void butWideIMD_Click(object sender, EventArgs e)
