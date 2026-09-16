@@ -36,7 +36,7 @@
             this.butFloor = new System.Windows.Forms.Button();
             this.tbResults = new System.Windows.Forms.TextBox();
             this.butWideIMD = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
+            this.lblPreset = new System.Windows.Forms.Label();
             this.tbPreset = new System.Windows.Forms.TextBox();
             this.tbInterp = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -69,6 +69,14 @@
             this.label18 = new System.Windows.Forms.Label();
             this.tbTone1 = new System.Windows.Forms.TextBox();
             this.tbTone2 = new System.Windows.Forms.TextBox();
+            this.tbaShelf = new System.Windows.Forms.TextBox();
+            this.label19 = new System.Windows.Forms.Label();
+            this.tbShelfA = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.tbGdOpt = new System.Windows.Forms.TextBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.butSaveLog = new System.Windows.Forms.Button();
+            this.butClearLog = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblFrequency
@@ -109,11 +117,11 @@
             // 
             // tbData
             // 
-            this.tbData.Location = new System.Drawing.Point(21, 132);
+            this.tbData.Location = new System.Drawing.Point(21, 143);
             this.tbData.Multiline = true;
             this.tbData.Name = "tbData";
             this.tbData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbData.Size = new System.Drawing.Size(541, 295);
+            this.tbData.Size = new System.Drawing.Size(541, 284);
             this.tbData.TabIndex = 4;
             this.tbData.WordWrap = false;
             // 
@@ -149,7 +157,7 @@
             // 
             // tbCmd
             // 
-            this.tbCmd.Location = new System.Drawing.Point(221, 106);
+            this.tbCmd.Location = new System.Drawing.Point(214, 115);
             this.tbCmd.Name = "tbCmd";
             this.tbCmd.Size = new System.Drawing.Size(72, 20);
             this.tbCmd.TabIndex = 8;
@@ -158,7 +166,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(192, 109);
+            this.label1.Location = new System.Drawing.Point(185, 118);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(27, 13);
             this.label1.TabIndex = 9;
@@ -271,14 +279,14 @@
             this.butWideIMD.UseVisualStyleBackColor = true;
             this.butWideIMD.Click += new System.EventHandler(this.butWideIMD_Click);
             // 
-            // label3
+            // lblPreset
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(182, 12);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(37, 13);
-            this.label3.TabIndex = 21;
-            this.label3.Text = "Preset";
+            this.lblPreset.AutoSize = true;
+            this.lblPreset.Location = new System.Drawing.Point(163, 12);
+            this.lblPreset.Name = "lblPreset";
+            this.lblPreset.Size = new System.Drawing.Size(37, 13);
+            this.lblPreset.TabIndex = 21;
+            this.lblPreset.Text = "Preset";
             // 
             // tbPreset
             // 
@@ -514,7 +522,7 @@
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(299, 110);
+            this.label18.Location = new System.Drawing.Point(292, 119);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(67, 13);
             this.label18.TabIndex = 51;
@@ -522,7 +530,7 @@
             // 
             // tbTone1
             // 
-            this.tbTone1.Location = new System.Drawing.Point(375, 107);
+            this.tbTone1.Location = new System.Drawing.Point(368, 116);
             this.tbTone1.Name = "tbTone1";
             this.tbTone1.Size = new System.Drawing.Size(53, 20);
             this.tbTone1.TabIndex = 52;
@@ -530,17 +538,93 @@
             // 
             // tbTone2
             // 
-            this.tbTone2.Location = new System.Drawing.Point(434, 107);
+            this.tbTone2.Location = new System.Drawing.Point(427, 116);
             this.tbTone2.Name = "tbTone2";
             this.tbTone2.Size = new System.Drawing.Size(53, 20);
             this.tbTone2.TabIndex = 53;
             this.tbTone2.Text = "1700";
+            // 
+            // tbaShelf
+            // 
+            this.tbaShelf.Location = new System.Drawing.Point(223, 87);
+            this.tbaShelf.Name = "tbaShelf";
+            this.tbaShelf.Size = new System.Drawing.Size(41, 20);
+            this.tbaShelf.TabIndex = 59;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(182, 90);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(38, 13);
+            this.label19.TabIndex = 58;
+            this.label19.Text = "a shelf";
+            // 
+            // tbShelfA
+            // 
+            this.tbShelfA.Location = new System.Drawing.Point(328, 87);
+            this.tbShelfA.Name = "tbShelfA";
+            this.tbShelfA.Size = new System.Drawing.Size(41, 20);
+            this.tbShelfA.TabIndex = 57;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(287, 90);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(39, 13);
+            this.label20.TabIndex = 56;
+            this.label20.Text = "A shelf";
+            // 
+            // tbGdOpt
+            // 
+            this.tbGdOpt.Location = new System.Drawing.Point(427, 87);
+            this.tbGdOpt.Name = "tbGdOpt";
+            this.tbGdOpt.Size = new System.Drawing.Size(41, 20);
+            this.tbGdOpt.TabIndex = 55;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(386, 90);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(39, 13);
+            this.label21.TabIndex = 54;
+            this.label21.Text = "gd Opt";
+            // 
+            // butSaveLog
+            // 
+            this.butSaveLog.Location = new System.Drawing.Point(21, 114);
+            this.butSaveLog.Name = "butSaveLog";
+            this.butSaveLog.Size = new System.Drawing.Size(75, 23);
+            this.butSaveLog.TabIndex = 60;
+            this.butSaveLog.Text = "Save Log";
+            this.butSaveLog.UseVisualStyleBackColor = true;
+            this.butSaveLog.Click += new System.EventHandler(this.butSaveLog_Click);
+            // 
+            // butClearLog
+            // 
+            this.butClearLog.Location = new System.Drawing.Point(128, 115);
+            this.butClearLog.Name = "butClearLog";
+            this.butClearLog.Size = new System.Drawing.Size(48, 23);
+            this.butClearLog.TabIndex = 61;
+            this.butClearLog.Text = "Clear";
+            this.butClearLog.UseVisualStyleBackColor = true;
+            this.butClearLog.Click += new System.EventHandler(this.butClearLog_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 642);
+            this.Controls.Add(this.butClearLog);
+            this.Controls.Add(this.butSaveLog);
+            this.Controls.Add(this.tbaShelf);
+            this.Controls.Add(this.label19);
+            this.Controls.Add(this.tbShelfA);
+            this.Controls.Add(this.label20);
+            this.Controls.Add(this.tbGdOpt);
+            this.Controls.Add(this.label21);
             this.Controls.Add(this.tbTone2);
             this.Controls.Add(this.tbTone1);
             this.Controls.Add(this.label18);
@@ -573,7 +657,7 @@
             this.Controls.Add(this.tbInterp);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.tbPreset);
-            this.Controls.Add(this.label3);
+            this.Controls.Add(this.lblPreset);
             this.Controls.Add(this.butWideIMD);
             this.Controls.Add(this.tbResults);
             this.Controls.Add(this.butFloor);
@@ -626,7 +710,7 @@
         private System.Windows.Forms.Button butFloor;
         private System.Windows.Forms.TextBox tbResults;
         private System.Windows.Forms.Button butWideIMD;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lblPreset;
         private System.Windows.Forms.TextBox tbPreset;
         private System.Windows.Forms.TextBox tbInterp;
         private System.Windows.Forms.Label label4;
@@ -659,5 +743,13 @@
         private System.Windows.Forms.Label label18;
         private System.Windows.Forms.TextBox tbTone1;
         private System.Windows.Forms.TextBox tbTone2;
+        private System.Windows.Forms.TextBox tbaShelf;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.TextBox tbShelfA;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.TextBox tbGdOpt;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Button butSaveLog;
+        private System.Windows.Forms.Button butClearLog;
     }
 }

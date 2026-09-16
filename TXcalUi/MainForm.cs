@@ -1,5 +1,6 @@
 ﻿using SerialDemo;
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -81,6 +82,7 @@ namespace TXcalUi
         {
             double freqHz = _controller.GetVfoFrequency(Channel);
             lblFrequency.Text = $"{freqHz / 1e6:F6} MHz";
+            tbData.AppendText($"SDR frequency updated to {freqHz} MHz\r\n");
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -214,6 +216,7 @@ namespace TXcalUi
                 bool isNumeric = int.TryParse(strCmd, out int n);
                 if (isNumeric && n >= 0 && n <= 9)
                 {
+                    lblPreset.Text = $"Preset {n}";
                     // Selecting a preset by number -- follow up with "P" to fetch and
                     // display the settings it just switched to.
                     string[] pLines = await _serial.SendTaggedAsync("P");
@@ -592,8 +595,11 @@ namespace TXcalUi
                 env_floor,
                 freq_dev_slew_limit_hz,
                 envelope_interp_enable,
-                envelope_interp_curve
-            }
+                envelope_interp_curve,
+                Shelf_a_enable,
+                Shelf_A_enable,
+                gd_eq_variant
+        }
             //  Response:     { "Live", AUDIO_SRC_TWOTONE, 2.00f, 0.20f, 0.90f, true, ADC_LPF_MODE_OFF, false, false, -1.4f, true, true, 0.00f, SSB_DSP_FREQ_DEV_SLEW_UNLIMITED_HZ, false, ENVELOPE_INTERP_CURVE_CATMULL_ROM, true, true, ENV_GDEQ_VARIANT_CANDIDATE_B },
 
         private void UpdatePresets(string Poutput)
@@ -626,6 +632,43 @@ namespace TXcalUi
 
             subparts = parts[(int)Presets.envelope_interp_curve].Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
             tbCurve.Text = subparts[3];
+
+            tbaShelf.Text = parts[(int)Presets.Shelf_a_enable];
+            tbShelfA.Text = parts[(int)Presets.Shelf_A_enable];
+
+            subparts = parts[(int)Presets.gd_eq_variant].Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
+            tbGdOpt.Text = subparts[3].Contains("DEFAULT") ? "DEFAULT" : "B";
+        }
+
+        private void butSaveLog_Click(object sender, EventArgs e)
+        {
+            string path = SaveTextToDownloads(tbData.Text);
+            tbData.AppendText($"Saved log to {path}\r\n");
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
+        }
+
+        /// <summary>
+        /// Writes text to a new file in the user's Downloads folder, named
+        /// "log_yyyyMMdd_HHmmss.txt". Returns the full path written to.
+        /// </summary>
+        private static string SaveTextToDownloads(string text, string baseName = "log")
+        {
+            string downloadsFolder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+
+            Directory.CreateDirectory(downloadsFolder); // no-op if it already exists
+
+            string fileName = $"{baseName}_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+            string fullPath = Path.Combine(downloadsFolder, fileName);
+
+            File.WriteAllText(fullPath, text);
+            return fullPath;
+        }
+
+        private void butClearLog_Click(object sender, EventArgs e)
+        {
+            tbData.Text = string.Empty;
         }
 
         // Nothing native to release here on close -- SDRunoPlugin_TXcalUi's destructor
