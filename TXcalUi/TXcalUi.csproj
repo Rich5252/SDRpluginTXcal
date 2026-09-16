@@ -9,6 +9,9 @@
 		<Reference Include="System.Drawing" />
 	</ItemGroup>
 	<ItemGroup>
+		<PackageReference Include="NAudio" Version="2.2.1" />
+	</ItemGroup>
+	<ItemGroup>
 	  <Compile Update="Properties\Resources.Designer.cs">
 	    <DesignTime>True</DesignTime>
 	    <AutoGen>True</AutoGen>
@@ -33,6 +36,18 @@
 	  </None>
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="copy /Y &quot;$(TargetDir)$(ProjectName).dll&quot; &quot;C:\Users\office2\Documents\CommunityPlugins\$(ProjectName).dll&quot;" />
+	  <!-- Copy TXcalUi.dll AND every dependency DLL that landed next to it in the output
+	       folder (this is where NAudio's own assemblies, such as NAudio.Core.dll and
+	       NAudio.WinMM.dll, show up after a build, since NAudio v2 split itself across
+	       several package-provided DLLs instead of one). SDRUno loads TXcalUi.dll straight
+	       out of CommunityPlugins, so anything it needs to load in turn (NAudio.WinMM.dll
+	       included) has to be sitting right there next to it, not just in bin\Debug\net48;
+	       copying only $(ProjectName).dll, as this used to do, left those behind and
+	       produced "Could not load file or assembly 'NAudio.WinMM' ..." the first time
+	       NAudio code actually ran. -->
+	  <ItemGroup>
+	    <DeployFiles Include="$(TargetDir)*.dll" />
+	  </ItemGroup>
+	  <Copy SourceFiles="@(DeployFiles)" DestinationFolder="C:\Users\office2\Documents\CommunityPlugins\" SkipUnchangedFiles="true" />
 	</Target>
 </Project>

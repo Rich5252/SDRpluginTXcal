@@ -1,5 +1,6 @@
 ﻿using SerialDemo;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace TXcalUi
         private bool StopFlg = false; // set by the Stop button to signal the measurement loop to exit
 
         private readonly AsyncSerialClient _serial = new AsyncSerialClient(); // async client for talking to the ESP32 over a COM port
+        private readonly AudioFrequencyMeter _audioMeter = new AudioFrequencyMeter(); // on-demand mic-input tone measurement (NAudio)
 
         public MainForm(ITXcalController controller)
         {
@@ -33,21 +35,141 @@ namespace TXcalUi
             _serial.RegisterTaggedCommand("P", "settings line (paste into settingsPresets[] in settings.h, then rename \"Live\")", 2);
 
             _serial.DataReceived += Serial_DataReceived;
+
+            tbData.MaxLength = int.MaxValue;
+            tbResults.MaxLength = int.MaxValue;
         }
 
         // Fires on a background thread (the same one SerialPort raises its own
         // DataReceived on) -- marshal onto the UI thread before touching tbData.
         private void Serial_DataReceived(string line)
         {
-            if (tbData.IsHandleCreated)
+            AppendToDataBox(line + "\r\n");
+
+            // The ESP32 sends a line containing " held_freq:" once it's settled on and
+            // is holding a steady tone -- that's our cue to grab the actual audio
+            // frequency via the mic input and log it alongside. Fire-and-forget from
+            // this background thread; RunAudioMeasurement marshals its own result back
+            // onto the UI thread via AppendToDataBox.
+            if (line.Contains(" held_freq:"))
             {
+                RunAudioMeasurement("Audio tone at held_freq");
+            }
+            if (line.Contains("held_trace") && line.Contains("-1]"))
+            {
+                RunAudioMeasurement("Audio tone at held_trace[-1]");
+            }
+            if (line.Contains("trend") && line.Contains("-1]"))
+            {
+                RunAudioMeasurement("Audio tone at trend[-1]");
+            }
+
+        }
+
+        // Thread-safe append to tbData -- safe to call from any thread (the serial
+        // background thread, an async continuation after MeasureFrequencyAsync, etc.).
+        private void AppendToDataBox(string text)
+        {
+            if (!tbData.IsHandleCreated) return;
+            try
+            {
+                tbData.BeginInvoke((Action)(() => tbData.AppendText(text)));
+            }
+            catch (ObjectDisposedException) { } // form closing race -- nothing to do
+            catch (InvalidOperationException) { } // handle destroyed mid-invoke -- same
+        }
+
+        // WaveInEvent can't have two captures open on the same device at once, so
+        // measurements still have to run one at a time -- but unlike the old
+        // "skip if one is already in progress" guard, a request that arrives while
+        // another is running is now queued rather than dropped, so a fast burst of
+        // held_freq/held_trace[-1]/trend[-1] lines each still gets its own reading
+        // instead of losing whichever one lands mid-measurement. RunAudioMeasurement
+        // just enqueues a label and makes sure exactly one worker loop is draining the
+        // queue; DrainAudioMeasurementQueueAsync is that worker.
+        private readonly Queue<string> _audioMeasurementQueue = new Queue<string>();
+        private bool _audioMeasurementWorkerRunning;
+        private readonly object _audioQueueLock = new object();
+
+        private void RunAudioMeasurement(string label)
+        {
+            lock (_audioQueueLock)
+            {
+                _audioMeasurementQueue.Enqueue(label);
+                if (_audioMeasurementWorkerRunning) return; // a worker is already draining the queue
+                _audioMeasurementWorkerRunning = true;
+            }
+
+            DrainAudioMeasurementQueueAsync();
+        }
+
+        private async void DrainAudioMeasurementQueueAsync()
+        {
+            while (true)
+            {
+                string label;
+                lock (_audioQueueLock)
+                {
+                    if (_audioMeasurementQueue.Count == 0)
+                    {
+                        _audioMeasurementWorkerRunning = false;
+                        return;
+                    }
+                    label = _audioMeasurementQueue.Dequeue();
+                }
+
                 try
                 {
-                    tbData.BeginInvoke((Action)(() => tbData.AppendText(line + "\r\n")));
+                    double freqHz = await _audioMeter.MeasureFrequencyAsync();
+                    AppendToDataBox($"{label}: {freqHz - 1000.0:F1} Hz\r\n");
                 }
-                catch (ObjectDisposedException) { } // form closing race -- nothing to do
-                catch (InvalidOperationException) { } // handle destroyed mid-invoke -- same
+                catch (Exception ex)
+                {
+                    AppendToDataBox($"Audio frequency measurement failed ({label}): {ex.Message}\r\n");
+                }
             }
+        }
+
+        // -----------------------------------------------------------------------------
+        // Audio input tone measurement (NAudio) -- wire these up to a MenuStrip:
+        //   * Put audioDeviceMenu_DropDownOpening on a ToolStripMenuItem's DropDownOpening
+        //     event (e.g. an "Audio Device" top-level menu) -- it (re)builds that menu's
+        //     items from whatever input devices are currently available each time it's
+        //     opened, with the active one checked.
+        //   * Put butMeasureAudioFreq_Click on a button or another ToolStripMenuItem's
+        //     Click event to measure on demand.
+        // -----------------------------------------------------------------------------
+
+        private void audioDeviceMenu_DropDownOpening(object sender, EventArgs e)
+        {
+            var parent = (ToolStripMenuItem)sender;
+            parent.DropDownItems.Clear();
+
+            var devices = AudioFrequencyMeter.GetInputDevices();
+            if (devices.Count == 0)
+            {
+                parent.DropDownItems.Add(new ToolStripMenuItem("(no input devices found)") { Enabled = false });
+                return;
+            }
+
+            foreach (var device in devices)
+            {
+                var item = new ToolStripMenuItem(device.Name) { Checked = device.Index == _audioMeter.DeviceNumber };
+                item.Click += (s, args) =>
+                {
+                    _audioMeter.DeviceNumber = device.Index;
+                    foreach (ToolStripMenuItem sibling in parent.DropDownItems) sibling.Checked = false;
+                    item.Checked = true;
+                    tbData.AppendText($"Audio input device set to: {device.Name}\r\n");
+                };
+                parent.DropDownItems.Add(item);
+            }
+        }
+
+        private void butMeasureAudioFreq_Click(object sender, EventArgs e)
+        {
+            RunAudioMeasurement("Measured audio tone");
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
         // Invoked by TXcalUiHost whenever SDRunoPlugin_TXcal::HandleEvent fires.
@@ -642,7 +764,8 @@ namespace TXcalUi
 
         private void butSaveLog_Click(object sender, EventArgs e)
         {
-            string path = SaveTextToDownloads(tbData.Text);
+            string strData = tbData.Text;
+            string path = SaveTextToDownloads(strData);
             tbData.AppendText($"Saved log to {path}\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
@@ -654,16 +777,25 @@ namespace TXcalUi
         /// </summary>
         private static string SaveTextToDownloads(string text, string baseName = "log")
         {
-            string downloadsFolder = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+            try
+            {
 
-            Directory.CreateDirectory(downloadsFolder); // no-op if it already exists
+                string downloadsFolder = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
 
-            string fileName = $"{baseName}_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
-            string fullPath = Path.Combine(downloadsFolder, fileName);
+                Directory.CreateDirectory(downloadsFolder); // no-op if it already exists
 
-            File.WriteAllText(fullPath, text);
-            return fullPath;
+                string fileName = $"{baseName}_{DateTime.Now:yyyyMMdd_HHmmss}.txt";
+                string fullPath = Path.Combine(downloadsFolder, fileName);
+
+                File.WriteAllText(fullPath, text);
+                return fullPath;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to save log: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return string.Empty;
+            }
         }
 
         private void butClearLog_Click(object sender, EventArgs e)
