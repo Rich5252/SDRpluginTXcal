@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -23,6 +24,10 @@ namespace TXcalUi
         private readonly AsyncSerialClient _serial = new AsyncSerialClient(); // async client for talking to the ESP32 over a COM port
         private readonly AudioFrequencyMeter _audioMeter = new AudioFrequencyMeter(); // on-demand mic-input tone measurement (NAudio)
 
+        // Ticks on the UI thread and flushes _pendingDataText into tbData -- see
+        // AppendToDataBox for why writes go through a buffer instead of straight in.
+        private readonly System.Windows.Forms.Timer _dataFlushTimer = new System.Windows.Forms.Timer { Interval = 100 };
+
         public MainForm(ITXcalController controller)
         {
             _controller = controller ?? throw new ArgumentNullException(nameof(controller));
@@ -38,6 +43,9 @@ namespace TXcalUi
 
             tbData.MaxLength = int.MaxValue;
             tbResults.MaxLength = int.MaxValue;
+
+            _dataFlushTimer.Tick += DataFlushTimer_Tick;
+            _dataFlushTimer.Start();
         }
 
         // Fires on a background thread (the same one SerialPort raises its own
@@ -68,15 +76,64 @@ namespace TXcalUi
 
         // Thread-safe append to tbData -- safe to call from any thread (the serial
         // background thread, an async continuation after MeasureFrequencyAsync, etc.).
+        //
+        // This used to marshal straight onto the UI thread with tbData.BeginInvoke,
+        // once per line. Each BeginInvoke posts its own message into the UI thread's
+        // message queue, and during a burst of fast serial telemetry (plus the audio
+        // measurement lines layered on top) that can mean dozens of queued messages a
+        // second all competing with the same queue that keyboard/mouse input rides on
+        // -- exactly the kind of thing that shows up as the UI "locking up" or feeling
+        // laggy right when you're typing. Instead, background threads just append into
+        // a buffer (cheap, no marshaling), and a single UI-thread Timer drains it into
+        // tbData in one AppendText call every 100 ms -- far fewer UI messages under
+        // load, and no BeginInvoke race to guard against on form close either.
         private void AppendToDataBox(string text)
         {
-            if (!tbData.IsHandleCreated) return;
-            try
+            lock (_pendingDataLock)
             {
-                tbData.BeginInvoke((Action)(() => tbData.AppendText(text)));
+                _pendingDataText.Append(text);
             }
-            catch (ObjectDisposedException) { } // form closing race -- nothing to do
-            catch (InvalidOperationException) { } // handle destroyed mid-invoke -- same
+        }
+
+        private readonly StringBuilder _pendingDataText = new StringBuilder();
+        private readonly object _pendingDataLock = new object();
+
+        // Keep tbData from growing without bound. The plain Win32 multiline Edit control
+        // behind a WinForms TextBox gets noticeably slow once it's holding a lot of text --
+        // not just appends, but ANY bulk operation on it, including Text = "" from the
+        // Clear button, which is exactly why that was locking up too. Past this many
+        // characters, drop the oldest lines instead of letting it keep growing. Use "Save
+        // Log" first if you want the full history -- this box is a rolling view, not the
+        // permanent record.
+        private const int MaxDataBoxChars = 1000000;
+
+        private void DataFlushTimer_Tick(object sender, EventArgs e)
+        {
+            string text;
+            lock (_pendingDataLock)
+            {
+                if (_pendingDataText.Length == 0) return;
+                text = _pendingDataText.ToString();
+                _pendingDataText.Clear();
+            }
+            tbData.AppendText(text);
+            TrimDataBoxIfNeeded();
+        }
+
+        private void TrimDataBoxIfNeeded()
+        {
+            int excess = tbData.TextLength - MaxDataBoxChars;
+            if (excess <= 0) return;
+
+            // Drop whole lines from the start rather than cutting mid-line -- find the
+            // first line break at or after the excess point and keep everything after it.
+            string current = tbData.Text;
+            int cutAt = current.IndexOf('\n', excess);
+            cutAt = cutAt < 0 ? excess : cutAt + 1;
+
+            tbData.Text = current.Substring(cutAt);
+            tbData.SelectionStart = tbData.TextLength;
+            tbData.ScrollToCaret();
         }
 
         // WaveInEvent can't have two captures open on the same device at once, so
@@ -100,7 +157,16 @@ namespace TXcalUi
                 _audioMeasurementWorkerRunning = true;
             }
 
-            DrainAudioMeasurementQueueAsync();
+            // Dispatch via Task.Run rather than calling DrainAudioMeasurementQueueAsync()
+            // directly. RunAudioMeasurement can be invoked straight from Serial_DataReceived,
+            // which fires on SerialPort's own background thread -- and everything up to an
+            // async method's first `await` runs SYNCHRONOUSLY on whatever thread called it.
+            // That includes MeasureFrequencyAsync's own prefix, waveIn.StartRecording(),
+            // which opens a native audio device and isn't instant. Without this, a burst of
+            // serial traffic could briefly stall SerialPort's own line dispatch while an
+            // audio device is being opened. Task.Run moves that prefix onto a thread-pool
+            // thread instead, so Serial_DataReceived always returns immediately.
+            Task.Run(() => DrainAudioMeasurementQueueAsync());
         }
 
         private async void DrainAudioMeasurementQueueAsync()
@@ -253,6 +319,10 @@ namespace TXcalUi
         {
             _serial.DataReceived -= Serial_DataReceived;
             _serial.Close();
+
+            _dataFlushTimer.Stop();
+            DataFlushTimer_Tick(this, EventArgs.Empty); // flush anything still buffered before we go
+            _dataFlushTimer.Dispose();
         }
 
         private void but3rdIMD_Click(object sender, EventArgs e)
@@ -800,6 +870,14 @@ namespace TXcalUi
 
         private void butClearLog_Click(object sender, EventArgs e)
         {
+            // Also drop anything background threads have appended but the flush timer
+            // hasn't drawn into tbData yet -- otherwise the very next tick would repaint
+            // a few lines of "old" text right back in, right after you just cleared it.
+            lock (_pendingDataLock)
+            {
+                _pendingDataText.Clear();
+            }
+
             tbData.Text = string.Empty;
         }
 

@@ -57,14 +57,21 @@ namespace TXcalUi
             int fftSize = FftSize;
             var samples = new List<float>(fftSize + 4096);
             var sync = new object();
-            var tcs = new TaskCompletionSource<bool>();
+            var enoughSamplesTcs = new TaskCompletionSource<bool>();
+            // Separate from enoughSamplesTcs: this one specifically tracks the native
+            // capture thread actually finishing its teardown (RecordingStopped), so we
+            // never Dispose() while it might still be touching a buffer or closing its
+            // WinMM handle -- see remarks below.
+            var stoppedTcs = new TaskCompletionSource<bool>();
 
-            using (var waveIn = new WaveInEvent
+            var waveIn = new WaveInEvent
             {
                 DeviceNumber = DeviceNumber,
                 WaveFormat = new WaveFormat(SampleRate, 16, 1), // mono, 16-bit PCM
                 BufferMilliseconds = 50
-            })
+            };
+
+            try
             {
                 waveIn.DataAvailable += (s, e) =>
                 {
@@ -76,25 +83,38 @@ namespace TXcalUi
                             short raw = BitConverter.ToInt16(e.Buffer, i * 2);
                             samples.Add(raw / 32768f);
                         }
-                        if (samples.Count >= fftSize) tcs.TrySetResult(true);
+                        if (samples.Count >= fftSize) enoughSamplesTcs.TrySetResult(true);
                     }
                 };
-                waveIn.RecordingStopped += (s, e) => tcs.TrySetResult(false);
+                waveIn.RecordingStopped += (s, e) => stoppedTcs.TrySetResult(true);
 
                 waveIn.StartRecording();
-                var completed = await Task.WhenAny(tcs.Task, Task.Delay(TimeoutMs));
+                var completed = await Task.WhenAny(enoughSamplesTcs.Task, Task.Delay(TimeoutMs));
+
+                // StopRecording() only SIGNALS the capture thread to stop -- it returns
+                // before that thread has necessarily finished, so disposing right after
+                // it (as this used to do) can race the capture thread's own native
+                // teardown and hit NAudio/WinMM while it's still mid-close. Wait for the
+                // RecordingStopped event, which fires once that thread has actually
+                // exited, before we let the `finally` below dispose waveIn. Bounded with
+                // a timeout so a driver that never raises it can't hang us forever.
                 waveIn.StopRecording();
+                await Task.WhenAny(stoppedTcs.Task, Task.Delay(1000));
 
                 float[] captured;
                 lock (sync)
                 {
-                    if (completed != tcs.Task || samples.Count < fftSize)
+                    if (completed != enoughSamplesTcs.Task || samples.Count < fftSize)
                         throw new TimeoutException(
                             $"Only captured {samples.Count} of {fftSize} samples needed within {TimeoutMs} ms.");
                     captured = samples.GetRange(0, fftSize).ToArray();
                 }
 
                 return EstimateSineFrequency(captured, SampleRate);
+            }
+            finally
+            {
+                waveIn.Dispose();
             }
         }
 
