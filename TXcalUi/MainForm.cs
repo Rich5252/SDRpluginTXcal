@@ -41,8 +41,8 @@ namespace TXcalUi
 
             _serial.DataReceived += Serial_DataReceived;
 
-            tbData.MaxLength = int.MaxValue;
-            tbResults.MaxLength = int.MaxValue;
+            //tbData.MaxLength = 51000;   //int.MaxValue;
+            //tbResults.MaxLength = 51000;   //int.MaxValue;
 
             _dataFlushTimer.Tick += DataFlushTimer_Tick;
             _dataFlushTimer.Start();
@@ -74,19 +74,27 @@ namespace TXcalUi
 
         }
 
-        // Thread-safe append to tbData -- safe to call from any thread (the serial
-        // background thread, an async continuation after MeasureFrequencyAsync, etc.).
+        // -----------------------------------------------------------------------------
+        // tbData storage model
+        // -----------------------------------------------------------------------------
+        // tbData itself is now just a DISPLAY WINDOW, not the data store. The plain
+        // Win32 multiline Edit control behind a WinForms TextBox gets noticeably slow
+        // once it's holding a lot of text -- not just appends, but ANY bulk operation on
+        // it, including Text = "" from the Clear button, which is exactly why that was
+        // locking up too. A 200k-char cap on the visible box avoids that, but that alone
+        // isn't enough if you need more than 200k characters of history retained: it
+        // just means old lines get discarded once trimmed. So the actual record now
+        // lives separately, in _fullLog -- a plain in-memory buffer (not a UI control,
+        // so no rendering cost) capped much higher, at MaxFullLogChars. Save Log reads
+        // from _fullLog, not from what's currently visible in tbData.
         //
-        // This used to marshal straight onto the UI thread with tbData.BeginInvoke,
-        // once per line. Each BeginInvoke posts its own message into the UI thread's
-        // message queue, and during a burst of fast serial telemetry (plus the audio
-        // measurement lines layered on top) that can mean dozens of queued messages a
-        // second all competing with the same queue that keyboard/mouse input rides on
-        // -- exactly the kind of thing that shows up as the UI "locking up" or feeling
-        // laggy right when you're typing. Instead, background threads just append into
-        // a buffer (cheap, no marshaling), and a single UI-thread Timer drains it into
-        // tbData in one AppendText call every 100 ms -- far fewer UI messages under
-        // load, and no BeginInvoke race to guard against on form close either.
+        // Every line goes through AppendToDataBox, which fans it out to both. This used
+        // to marshal straight onto the UI thread with tbData.BeginInvoke once per line;
+        // during a burst of fast serial telemetry that meant dozens of queued UI messages
+        // a second competing with the same queue keyboard/mouse input rides on -- part of
+        // what was showing up as "locking up". Now, ALL callers (background threads and
+        // UI-thread event handlers alike) just append into a buffer, and a single
+        // UI-thread Timer drains it every 100 ms into _fullLog and tbData together.
         private void AppendToDataBox(string text)
         {
             lock (_pendingDataLock)
@@ -98,14 +106,16 @@ namespace TXcalUi
         private readonly StringBuilder _pendingDataText = new StringBuilder();
         private readonly object _pendingDataLock = new object();
 
-        // Keep tbData from growing without bound. The plain Win32 multiline Edit control
-        // behind a WinForms TextBox gets noticeably slow once it's holding a lot of text --
-        // not just appends, but ANY bulk operation on it, including Text = "" from the
-        // Clear button, which is exactly why that was locking up too. Past this many
-        // characters, drop the oldest lines instead of letting it keep growing. Use "Save
-        // Log" first if you want the full history -- this box is a rolling view, not the
-        // permanent record.
-        private const int MaxDataBoxChars = 1000000;
+        // The record of everything logged, independent of what's currently on screen.
+        // Only ever touched from the UI thread (via DataFlushTimer_Tick and the Save
+        // Log / Clear Log handlers), so it needs no lock of its own.
+        private readonly StringBuilder _fullLog = new StringBuilder();
+        private const int MaxFullLogChars = 5_000_000; // ~5 MB -- comfortably past the 1 MB you need kept
+
+        // Cap on the VISIBLE window only -- kept much smaller than MaxFullLogChars so
+        // the Edit control stays responsive regardless of how much history _fullLog is
+        // holding.
+        private const int MaxDataBoxChars = 32_000;
 
         private void DataFlushTimer_Tick(object sender, EventArgs e)
         {
@@ -116,6 +126,10 @@ namespace TXcalUi
                 text = _pendingDataText.ToString();
                 _pendingDataText.Clear();
             }
+
+            _fullLog.Append(text);
+            TrimFullLogIfNeeded();
+
             tbData.AppendText(text);
             TrimDataBoxIfNeeded();
         }
@@ -136,6 +150,22 @@ namespace TXcalUi
             tbData.ScrollToCaret();
         }
 
+        private void TrimFullLogIfNeeded()
+        {
+            int excess = _fullLog.Length - MaxFullLogChars;
+            if (excess <= 0) return;
+
+            // Same idea as TrimDataBoxIfNeeded, but avoid stringifying the whole
+            // multi-MB buffer just to find where to cut -- pull out only the surplus
+            // (plus a little headroom) and search that for a line break instead.
+            int searchLen = Math.Min(excess + 1024, _fullLog.Length);
+            string prefix = _fullLog.ToString(0, searchLen);
+            int cutAt = prefix.IndexOf('\n', excess);
+            cutAt = cutAt < 0 ? excess : cutAt + 1;
+
+            _fullLog.Remove(0, cutAt);
+        }
+
         // WaveInEvent can't have two captures open on the same device at once, so
         // measurements still have to run one at a time -- but unlike the old
         // "skip if one is already in progress" guard, a request that arrives while
@@ -150,6 +180,8 @@ namespace TXcalUi
 
         private void RunAudioMeasurement(string label)
         {
+            //return;
+
             lock (_audioQueueLock)
             {
                 _audioMeasurementQueue.Enqueue(label);
@@ -226,7 +258,7 @@ namespace TXcalUi
                     _audioMeter.DeviceNumber = device.Index;
                     foreach (ToolStripMenuItem sibling in parent.DropDownItems) sibling.Checked = false;
                     item.Checked = true;
-                    tbData.AppendText($"Audio input device set to: {device.Name}\r\n");
+                    AppendToDataBox($"Audio input device set to: {device.Name}\r\n");
                 };
                 parent.DropDownItems.Add(item);
             }
@@ -270,7 +302,7 @@ namespace TXcalUi
         {
             double freqHz = _controller.GetVfoFrequency(Channel);
             lblFrequency.Text = $"{freqHz / 1e6:F6} MHz";
-            tbData.AppendText($"SDR frequency updated to {freqHz} MHz\r\n");
+            AppendToDataBox($"SDR frequency updated to {freqHz} MHz\r\n");
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -305,11 +337,11 @@ namespace TXcalUi
             try
             {
                 await _serial.OpenAndSilenceEsp32Async("COM14", 921600); // adjust COM port and baud rate as needed
-                tbData.AppendText("Serial port opened and ESP32 silenced.\r\n");
+                AppendToDataBox("Serial port opened and ESP32 silenced.\r\n");
             }
             catch (Exception ex)
             {
-                tbData.AppendText($"Failed to open serial port: {ex.Message}\r\n");
+                AppendToDataBox($"Failed to open serial port: {ex.Message}\r\n");
             }
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
@@ -385,7 +417,7 @@ namespace TXcalUi
         private async void tbCmd_KeyPress(object sender, KeyPressEventArgs e)
         {
             string strCmd = e.KeyChar.ToString();
-            tbData.AppendText($"Command sent: {strCmd}\r\n");
+            AppendToDataBox($"Command sent: {strCmd}\r\n");
 
             if (strCmd == "P")
             {
@@ -393,7 +425,7 @@ namespace TXcalUi
                 // returns both its fixed lines (the "-> ..." marker plus the one data
                 // line) together, correctly even if other traffic is interleaved.
                 string[] pLines = await _serial.SendTaggedAsync("P");
-                tbData.AppendText($"Response: {pLines[0]}\r\n");
+                AppendToDataBox($"Response: {pLines[0]}\r\n");
                 if (pLines.Length > 1)
                 {
                     tbResults.AppendText($"Response: {pLines[1]}\r\n");
@@ -403,7 +435,7 @@ namespace TXcalUi
             else
             {
                 string strRet = await _serial.SendExclusiveAsync(strCmd);
-                tbData.AppendText($"Response: {strRet}\r\n");
+                AppendToDataBox($"Response: {strRet}\r\n");
 
                 bool isNumeric = int.TryParse(strCmd, out int n);
                 if (isNumeric && n >= 0 && n <= 9)
@@ -834,9 +866,12 @@ namespace TXcalUi
 
         private void butSaveLog_Click(object sender, EventArgs e)
         {
-            string strData = tbData.Text;
+            // Save from _fullLog, the full backing record -- not tbData.Text, which is
+            // only the trimmed display window and can be missing older lines that got
+            // dropped from the screen but are still held in _fullLog.
+            string strData = _fullLog.ToString();
             string path = SaveTextToDownloads(strData);
-            tbData.AppendText($"Saved log to {path}\r\n");
+            AppendToDataBox($"Saved log to {path}\r\n");
 
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
@@ -871,13 +906,19 @@ namespace TXcalUi
         private void butClearLog_Click(object sender, EventArgs e)
         {
             // Also drop anything background threads have appended but the flush timer
-            // hasn't drawn into tbData yet -- otherwise the very next tick would repaint
-            // a few lines of "old" text right back in, right after you just cleared it.
+            // hasn't drawn in yet -- otherwise the very next tick would repaint a few
+            // lines of "old" text right back in, right after you just cleared it.
             lock (_pendingDataLock)
             {
                 _pendingDataText.Clear();
             }
 
+            // Clears BOTH the visible window and the full backing record, i.e. this is
+            // a real "start over", not just "clear the screen" -- Save Log right before
+            // clicking this if you want to keep what's there. (If you'd rather Clear only
+            // reset the screen and keep accumulating the full record regardless, just
+            // drop the _fullLog.Clear() line below.)
+            _fullLog.Clear();
             tbData.Text = string.Empty;
         }
 
