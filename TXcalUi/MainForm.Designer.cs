@@ -80,6 +80,7 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.audioDeviceMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.SaveAudioFreq = new System.Windows.Forms.ToolStripMenuItem();
+            this.butUpdate = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -641,11 +642,22 @@
             this.SaveAudioFreq.Text = "Detect Freq";
             this.SaveAudioFreq.Click += new System.EventHandler(this.butMeasureAudioFreq_Click);
             // 
+            // butUpdate
+            // 
+            this.butUpdate.Location = new System.Drawing.Point(501, 145);
+            this.butUpdate.Name = "butUpdate";
+            this.butUpdate.Size = new System.Drawing.Size(61, 23);
+            this.butUpdate.TabIndex = 63;
+            this.butUpdate.Text = "Update";
+            this.butUpdate.UseVisualStyleBackColor = true;
+            this.butUpdate.Click += new System.EventHandler(this.butUpdate_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 667);
+            this.Controls.Add(this.butUpdate);
             this.Controls.Add(this.butClearLog);
             this.Controls.Add(this.butSaveLog);
             this.Controls.Add(this.tbaShelf);
@@ -786,5 +798,6 @@
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem audioDeviceMenu;
         private System.Windows.Forms.ToolStripMenuItem SaveAudioFreq;
+        private System.Windows.Forms.Button butUpdate;
     }
 }

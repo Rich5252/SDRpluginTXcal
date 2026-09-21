@@ -581,10 +581,25 @@ namespace TXcalUi
                 if (!strRet.Contains("override ON")) strRet = await _serial.SendExclusiveAsync("d");
                 tbResults.AppendText($"{strRet}\r\n");
 
-                int nMeas = 10;
-                avgPower = MeasPower(14201000, nMeas); // time to settle agc
-
                 int i = 0;
+                int nMeas = 20;
+                double lastavgPower = 0;
+                for (i = 0; i < 10; i++)
+                {
+                    avgPower = MeasPower(14201000, nMeas); // time to settle agc
+                    if (avgPower > lastavgPower + 0.02 || avgPower < lastavgPower - 0.02)
+                    {
+                        lastavgPower = avgPower;
+                        tbResults.AppendText($"AGC not settled, waiting 2 seconds\r\n");
+                        await Task.Delay(2000); // wait a bit before the next measurement, without blocking the UI thread
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+
                 for (i = 0; i < 1026; i++)
                 {
                     //set next level
@@ -861,7 +876,9 @@ namespace TXcalUi
             tbShelfA.Text = parts[(int)Presets.Shelf_A_enable];
 
             subparts = parts[(int)Presets.gd_eq_variant].Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
-            tbGdOpt.Text = subparts[3].Contains("DEFAULT") ? "DEFAULT" : "B";
+            tbGdOpt.Text = subparts[3] == "CANDIDATE" ? "B" : subparts[3];
+
+            //a+A candidate, candidate B, A_CANDIDATE
         }
 
         private void butSaveLog_Click(object sender, EventArgs e)
@@ -920,6 +937,15 @@ namespace TXcalUi
             // drop the _fullLog.Clear() line below.)
             _fullLog.Clear();
             tbData.Text = string.Empty;
+        }
+
+        private async void butUpdate_Click(object sender, EventArgs e)
+        {
+            string[] pLines = await _serial.SendTaggedAsync("P");
+            if (pLines.Length > 1)
+            {
+                UpdatePresets(pLines[1]);
+            }
         }
 
         // Nothing native to release here on close -- SDRunoPlugin_TXcalUi's destructor
