@@ -853,7 +853,9 @@ namespace TXcalUi
                 envelope_interp_curve,
                 Shelf_a_enable,
                 Shelf_A_enable,
-                gd_eq_variant
+                gd_eq_variant,
+                ALC_enable,
+                SoftLimiter_enable
         }
             //  Response:     { "Live", AUDIO_SRC_TWOTONE, 2.00f, 0.20f, 0.90f, true, ADC_LPF_MODE_OFF, false, false, -1.4f, true, true, 0.00f, SSB_DSP_FREQ_DEV_SLEW_UNLIMITED_HZ, false, ENVELOPE_INTERP_CURVE_CATMULL_ROM, true, true, ENV_GDEQ_VARIANT_CANDIDATE_B },
 
@@ -891,10 +893,12 @@ namespace TXcalUi
             tbaShelf.Text = parts[(int)Presets.Shelf_a_enable];
             tbShelfA.Text = parts[(int)Presets.Shelf_A_enable];
 
+            //a+A candidate, candidate B, A_CANDIDATE
             subparts = parts[(int)Presets.gd_eq_variant].Split(new char[] { '_' }, StringSplitOptions.RemoveEmptyEntries);
             tbGdOpt.Text = subparts[3] == "CANDIDATE" ? "B" : subparts[3];
 
-            //a+A candidate, candidate B, A_CANDIDATE
+            tbALC.Text = parts[(int)Presets.ALC_enable];
+            tbSoftLimiter.Text = parts[(int)Presets.SoftLimiter_enable];
         }
 
         private void butSaveLog_Click(object sender, EventArgs e)

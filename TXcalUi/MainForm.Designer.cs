@@ -81,6 +81,10 @@
             this.audioDeviceMenu = new System.Windows.Forms.ToolStripMenuItem();
             this.SaveAudioFreq = new System.Windows.Forms.ToolStripMenuItem();
             this.butUpdate = new System.Windows.Forms.Button();
+            this.tbALC = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.tbSoftLimiter = new System.Windows.Forms.TextBox();
+            this.label22 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -652,11 +656,47 @@
             this.butUpdate.UseVisualStyleBackColor = true;
             this.butUpdate.Click += new System.EventHandler(this.butUpdate_Click);
             // 
+            // tbALC
+            // 
+            this.tbALC.Location = new System.Drawing.Point(522, 120);
+            this.tbALC.Name = "tbALC";
+            this.tbALC.Size = new System.Drawing.Size(41, 20);
+            this.tbALC.TabIndex = 65;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(481, 123);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(27, 13);
+            this.label3.TabIndex = 64;
+            this.label3.Text = "ALC";
+            // 
+            // tbSoftLimiter
+            // 
+            this.tbSoftLimiter.Location = new System.Drawing.Point(618, 120);
+            this.tbSoftLimiter.Name = "tbSoftLimiter";
+            this.tbSoftLimiter.Size = new System.Drawing.Size(41, 20);
+            this.tbSoftLimiter.TabIndex = 67;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(569, 123);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(45, 13);
+            this.label22.TabIndex = 66;
+            this.label22.Text = "Soft Lim";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 667);
+            this.Controls.Add(this.tbSoftLimiter);
+            this.Controls.Add(this.label22);
+            this.Controls.Add(this.tbALC);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.butUpdate);
             this.Controls.Add(this.butClearLog);
             this.Controls.Add(this.butSaveLog);
@@ -799,5 +839,9 @@
         private System.Windows.Forms.ToolStripMenuItem audioDeviceMenu;
         private System.Windows.Forms.ToolStripMenuItem SaveAudioFreq;
         private System.Windows.Forms.Button butUpdate;
+        private System.Windows.Forms.TextBox tbALC;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox tbSoftLimiter;
+        private System.Windows.Forms.Label label22;
     }
 }
