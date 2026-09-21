@@ -496,6 +496,22 @@ namespace TXcalUi
             diff = atNeg500 - at900;
             tbResults.AppendText($"Hi 250:, {diff:F3}, dB\r\n\r\n");
 
+            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorUSB); // set demodulator to USB for image measurement
+            _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for image measurement
+
+            at900 = MeasPower(14200000, 5);
+            tbResults.AppendText($"Micr Test (3kHz bndw)- ref level:, {at900:F3}, dBm\r\n");
+
+            atNeg500 = MeasPower(14200000 - 3000, 5);
+            atNeg500 = MeasPower(14200000 - 3000, 5);
+            diff = atNeg500 - at900;
+            tbResults.AppendText($"Micr Test - Low 3kHz:, {diff:F3}, dB\r\n");
+
+            atNeg500 = MeasPower(14200000 + 3000, 5);
+            atNeg500 = MeasPower(14200000 + 3000, 5);
+            diff = atNeg500 - at900;
+            tbResults.AppendText($"Hi 3kHz:, {diff:F3}, dB\r\n\r\n");
+
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
