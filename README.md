@@ -1,4 +1,14 @@
-﻿# New SDRUno plugin skeleton (WinForms UI, serial/pipe/UDP-ready)
+This project is built on https://github.com/Rich5252/SDRpluginTemplate_SDRuno_Plugin_Template_CSharp_UI_SDRplay
+
+If you want to create your own project plugin for SDRUno see that repository.
+
+
+
+================================================================================================================
+ 
+ 
+ 
+ # New SDRUno plugin skeleton (WinForms UI, serial/pipe/UDP-ready)
 
 A minimal, from-scratch SDRUno plugin: WinForms UI via the same C++/CLI bridge pattern
 as the TX Link kit, no TX-Link-specific business logic, and a single placeholder
