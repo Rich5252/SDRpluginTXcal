@@ -423,9 +423,11 @@ namespace TXcalUi
             {
                 // "P" is a registered tagged command -- SendTaggedAsync waits for and
                 // returns both its fixed lines (the "-> ..." marker plus the one data
-                // line) together, correctly even if other traffic is interleaved.
+                // line) together, correctly even if other traffic is interleaved. Only
+                // the data line (pLines[1]) is useful to show -- pLines[0] is just the
+                // fixed "-> settings line ..." marker text, so it's read and discarded
+                // here rather than logged to tbData.
                 string[] pLines = await _serial.SendTaggedAsync("P");
-                AppendToDataBox($"Response: {pLines[0]}\r\n");
                 if (pLines.Length > 1)
                 {
                     tbResults.AppendText($"Response: {pLines[1]}\r\n");
@@ -437,21 +439,9 @@ namespace TXcalUi
                 string strRet = await _serial.SendExclusiveAsync(strCmd);
                 AppendToDataBox($"Response: {strRet}\r\n");
 
-                bool isNumeric = int.TryParse(strCmd, out int n);
-                if (isNumeric && n >= 0 && n <= 9)
-                {
-                    lblPreset.Text = $"Preset {n}";
-                    // Selecting a preset by number -- follow up with "P" to fetch and
-                    // display the settings it just switched to.
-                    string[] pLines = await _serial.SendTaggedAsync("P");
-                    if (pLines.Length > 1)
-                    {
-                        tbResults.AppendText($"Response: {pLines[1]}\r\n");
-                        UpdatePresets(pLines[1]);
-                    }
-                }
+                GetAndUpdateSettings(); // refresh the settings display after any command that might have changed them
             }
-
+            
             tbCmd.Text = string.Empty;
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
@@ -959,7 +949,12 @@ namespace TXcalUi
             tbData.Text = string.Empty;
         }
 
-        private async void butUpdate_Click(object sender, EventArgs e)
+        private void butUpdate_Click(object sender, EventArgs e)
+        {
+            GetAndUpdateSettings();
+        }
+
+        private async void GetAndUpdateSettings()
         {
             string[] pLines = await _serial.SendTaggedAsync("P");
             if (pLines.Length > 1)

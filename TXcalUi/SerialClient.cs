@@ -447,7 +447,19 @@ namespace SerialDemo
         // What DispatchLine decided to do with one incoming line, resolved while holding
         // _stateLock, then acted on afterward (outside the lock, so a caller's
         // continuation can never deadlock against another incoming line's dispatch).
-        private enum LineAction { Unmatched, CompleteTagged, CompleteExclusive }
+        //
+        // Collecting is distinct from Unmatched: both a multi-line tagged response's
+        // first line (which starts _collecting but isn't the last line yet) and any
+        // further continuation line before the last one are consumed into that
+        // in-progress response, NOT telemetry -- they must NOT fall through to
+        // DataReceived. Leaving them at the default Unmatched value used to do exactly
+        // that: the first line of any LineCount > 1 tagged response (e.g. "P"'s
+        // "-> settings line ..." marker) fell into the default case below and got
+        // reported as plain telemetry even though SendTaggedAsync had already claimed
+        // it -- which is why it kept showing up wherever DataReceived lines get logged,
+        // regardless of what the caller (tbCmd_KeyPress, butUpdate_Click, ...) itself did
+        // with the tagged response.
+        private enum LineAction { Unmatched, CompleteTagged, CompleteExclusive, Collecting }
 
         private void DispatchLine(string line)
         {
@@ -471,6 +483,10 @@ namespace SerialDemo
                         _collecting = null;
                         _collectingLines.Clear();
                     }
+                    else
+                    {
+                        action = LineAction.Collecting; // more lines still to come -- not telemetry
+                    }
                 }
                 else
                 {
@@ -488,6 +504,7 @@ namespace SerialDemo
                             _collecting = newlyMatched;
                             _collectingLines.Clear();
                             _collectingLines.Add(line);
+                            action = LineAction.Collecting; // this IS the marker line -- wait for the rest before completing
                         }
                     }
                     else if (IsStreamingStopped && _pendingExclusive.Count > 0)
@@ -508,6 +525,8 @@ namespace SerialDemo
                 case LineAction.CompleteExclusive:
                     exclusiveCompletion.TrySetResult(line);
                     break;
+                case LineAction.Collecting:
+                    break; // consumed into an in-progress tagged response -- don't report as telemetry
                 default:
                     DataReceived?.Invoke(line);
                     break;
