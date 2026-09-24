@@ -851,6 +851,11 @@ namespace TXcalUi
 
         private void UpdatePresets(string Poutput)
         {
+            if (Poutput.Contains("ERROR") || !Poutput.Contains("\"Live\","))
+            {
+                tbData.AppendText($"Error in P response: {Poutput}\r\n");
+                return;
+            }
 
             string[] parts = Poutput.Split(new char[] { '{', '}', ',' }, StringSplitOptions.RemoveEmptyEntries);
 

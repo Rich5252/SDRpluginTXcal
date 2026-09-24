@@ -93,7 +93,7 @@ namespace SerialDemo
         private readonly Dictionary<string, Queue<PendingTagged>> _pendingByTag = new Dictionary<string, Queue<PendingTagged>>();
 
         // FIFO queue for the plain "send it, next line is the reply" exclusive commands.
-        private readonly Queue<TaskCompletionSource<string>> _pendingExclusive = new Queue<TaskCompletionSource<string>>();
+        private readonly Queue<PendingExclusive> _pendingExclusive = new Queue<PendingExclusive>();
 
         // State for a multi-line tagged response currently being collected: once a line
         // matches a tag, any further lines are unconditionally appended to this buffer
@@ -238,14 +238,14 @@ namespace SerialDemo
         /// LineCount elements each set to an "ERROR: ..." string rather than throwing --
         /// same convention as SendExclusiveAsync.
         /// </summary>
-        public Task<string[]> SendTaggedAsync(string command, int timeoutMs = 3000)
+        public async Task<string[]> SendTaggedAsync(string command, int timeoutMs = 3000)
         {
             if (!_taggedCommands.TryGetValue(command, out var info))
                 throw new InvalidOperationException(
                     $"Command \"{command}\" has not been registered via RegisterTaggedCommand.");
 
             if (_port == null || !_port.IsOpen)
-                return Task.FromResult(ErrorLines("SendTaggedAsync() ERROR: Serial port is not open", info.LineCount));
+                return ErrorLines("SendTaggedAsync() ERROR: Serial port is not open", info.LineCount);
 
             var pending = new PendingTagged(info);
 
@@ -260,7 +260,28 @@ namespace SerialDemo
             }
 
             WriteRaw(command);
-            return WaitTaggedWithTimeout(pending.Completion.Task, timeoutMs, command, info.LineCount);
+
+            var completed = await Task.WhenAny(pending.Completion.Task, Task.Delay(timeoutMs));
+            if (completed == pending.Completion.Task)
+                return await pending.Completion.Task; // never faults -- only ever completed via TrySetResult
+
+            // Timed out. Mark this entry expired rather than just walking away from it --
+            // it may still be sitting in _pendingByTag's queue (marker line never arrived)
+            // or be the live _collecting entry (marker arrived, but not all its follow-on
+            // lines did) -- see TryMatchTag and DispatchLine for why leaving either behind
+            // unmarked would let a LATER, unrelated reply get misattributed to this
+            // already-abandoned call.
+            lock (_stateLock)
+            {
+                pending.Expired = true;
+                if (_collecting == pending)
+                {
+                    _collecting = null;
+                    _collectingLines.Clear();
+                }
+            }
+
+            return ErrorLines($"ERROR: Timeout waiting for reply to \"{command}\"", info.LineCount);
         }
 
         /// <summary>
@@ -274,7 +295,7 @@ namespace SerialDemo
         /// If the port isn't open, or no reply arrives within timeoutMs, returns an
         /// "ERROR: ..." string instead of throwing.
         /// </summary>
-        public Task<string> SendExclusiveAsync(string command, int timeoutMs = 3000)
+        public async Task<string> SendExclusiveAsync(string command, int timeoutMs = 3000)
         {
             if (!IsStreamingStopped)
                 throw new InvalidOperationException(
@@ -282,16 +303,29 @@ namespace SerialDemo
                     "call StopStreamingAsync() first, or use SendTaggedAsync for a registered command.");
 
             if (_port == null || !_port.IsOpen)
-                return Task.FromResult("SendExclusiveAsync() ERROR: Serial port is not open");
+                return "SendExclusiveAsync() ERROR: Serial port is not open";
 
-            var tcs = new TaskCompletionSource<string>();
+            var pending = new PendingExclusive();
             lock (_stateLock)
             {
-                _pendingExclusive.Enqueue(tcs);
+                _pendingExclusive.Enqueue(pending);
             }
 
             WriteRaw(command);
-            return WaitExclusiveWithTimeout(tcs.Task, timeoutMs, command);
+
+            var completed = await Task.WhenAny(pending.Completion.Task, Task.Delay(timeoutMs));
+            if (completed == pending.Completion.Task)
+                return await pending.Completion.Task; // never faults -- only ever completed via TrySetResult
+
+            // Timed out -- mark expired rather than leaving it in _pendingExclusive
+            // unmarked, same reasoning as SendTaggedAsync above: a dropped reply must not
+            // let this abandoned entry intercept a LATER request's real reply.
+            lock (_stateLock)
+            {
+                pending.Expired = true;
+            }
+
+            return $"ERROR: Timeout waiting for reply to \"{command}\"";
         }
 
         /// <summary>
@@ -358,22 +392,6 @@ namespace SerialDemo
             var lines = new string[count];
             for (int i = 0; i < count; i++) lines[i] = message;
             return lines;
-        }
-
-        private static async Task<string> WaitExclusiveWithTimeout(Task<string> task, int timeoutMs, string command)
-        {
-            var completed = await Task.WhenAny(task, Task.Delay(timeoutMs));
-            if (completed != task)
-                return $"ERROR: Timeout waiting for reply to \"{command}\"";
-            return await task; // never faults -- only ever completed via TrySetResult
-        }
-
-        private static async Task<string[]> WaitTaggedWithTimeout(Task<string[]> task, int timeoutMs, string command, int lineCount)
-        {
-            var completed = await Task.WhenAny(task, Task.Delay(timeoutMs));
-            if (completed != task)
-                return ErrorLines($"ERROR: Timeout waiting for reply to \"{command}\"", lineCount);
-            return await task; // never faults -- only ever completed via TrySetResult
         }
 
         private void WriteRaw(string message)
@@ -507,12 +525,22 @@ namespace SerialDemo
                             action = LineAction.Collecting; // this IS the marker line -- wait for the rest before completing
                         }
                     }
-                    else if (IsStreamingStopped && _pendingExclusive.Count > 0)
+                    else
                     {
-                        // Not a tag match. While streaming is stopped, an untagged line is
-                        // the reply to the oldest pending exclusive request, if any.
-                        exclusiveCompletion = _pendingExclusive.Dequeue();
-                        action = LineAction.CompleteExclusive;
+                        // Same reasoning as TryMatchTag above: drop any already-timed-out
+                        // requests from the front before treating this line as a reply --
+                        // otherwise a dropped reply's abandoned entry would sit here
+                        // forever and wrongly intercept a LATER request's real reply.
+                        while (IsStreamingStopped && _pendingExclusive.Count > 0 && _pendingExclusive.Peek().Expired)
+                            _pendingExclusive.Dequeue();
+
+                        if (IsStreamingStopped && _pendingExclusive.Count > 0)
+                        {
+                            // Not a tag match. While streaming is stopped, an untagged line is
+                            // the reply to the oldest pending exclusive request, if any.
+                            exclusiveCompletion = _pendingExclusive.Dequeue().Completion;
+                            action = LineAction.CompleteExclusive;
+                        }
                     }
                 }
             }
@@ -541,8 +569,21 @@ namespace SerialDemo
             {
                 Queue<PendingTagged> queue = kvp.Value;
                 if (queue.Count == 0) continue;
+                if (!line.StartsWith("-> " + kvp.Key, StringComparison.Ordinal)) continue;
 
-                if (line.StartsWith("-> " + kvp.Key, StringComparison.Ordinal))
+                // Discard any entries at the front that already timed out before we get
+                // to the real match. Without this, a call whose reply never arrived (a
+                // dropped byte, firmware hiccup, whatever) leaves its PendingTagged
+                // sitting in this queue forever -- since nothing else ever dequeues it --
+                // and the next time this same tag genuinely replies, THIS line would
+                // wrongly complete that abandoned entry (whose caller already gave up
+                // and returned an ERROR) instead of whichever SendTaggedAsync call is
+                // actually waiting for it, causing that call to time out too even though
+                // its reply did arrive.
+                while (queue.Count > 0 && queue.Peek().Expired)
+                    queue.Dequeue();
+
+                if (queue.Count > 0)
                     return queue.Dequeue();
             }
             return null;
@@ -552,7 +593,18 @@ namespace SerialDemo
         {
             public TaggedResponse Info { get; }
             public TaskCompletionSource<string[]> Completion { get; } = new TaskCompletionSource<string[]>();
+            // Set once SendTaggedAsync's own wait times out. A timed-out entry can still
+            // be sitting in _pendingByTag (never matched) or in _collecting (matched but
+            // never finished collecting all its lines) -- see TryMatchTag and DispatchLine
+            // for why this flag exists rather than just leaving it to be garbage collected.
+            public bool Expired;
             public PendingTagged(TaggedResponse info) => Info = info;
+        }
+
+        private sealed class PendingExclusive
+        {
+            public TaskCompletionSource<string> Completion { get; } = new TaskCompletionSource<string>();
+            public bool Expired; // same idea as PendingTagged.Expired -- see DispatchLine
         }
     }
 }
