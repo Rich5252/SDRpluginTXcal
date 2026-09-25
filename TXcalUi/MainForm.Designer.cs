@@ -90,6 +90,10 @@
             this.tbMicrdB = new System.Windows.Forms.TextBox();
             this.label24 = new System.Windows.Forms.Label();
             this.lblPresetName = new System.Windows.Forms.Label();
+            this.tbSquelch_ = new System.Windows.Forms.TextBox();
+            this.label25 = new System.Windows.Forms.Label();
+            this.tbSquelch_enable = new System.Windows.Forms.TextBox();
+            this.label26 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -700,7 +704,6 @@
             this.tbCompdB.Name = "tbCompdB";
             this.tbCompdB.Size = new System.Drawing.Size(41, 20);
             this.tbCompdB.TabIndex = 69;
-            this.tbCompdB.TextChanged += new System.EventHandler(this.tbMicrdB_TextChanged);
             // 
             // label23
             // 
@@ -710,7 +713,6 @@
             this.label23.Size = new System.Drawing.Size(43, 13);
             this.label23.TabIndex = 68;
             this.label23.Text = "Micr dB";
-            this.label23.Click += new System.EventHandler(this.label23_Click);
             // 
             // tbMicrdB
             // 
@@ -736,11 +738,47 @@
             this.lblPresetName.Size = new System.Drawing.Size(0, 13);
             this.lblPresetName.TabIndex = 72;
             // 
+            // tbSquelch_
+            // 
+            this.tbSquelch_.Location = new System.Drawing.Point(521, 145);
+            this.tbSquelch_.Name = "tbSquelch_";
+            this.tbSquelch_.Size = new System.Drawing.Size(41, 20);
+            this.tbSquelch_.TabIndex = 76;
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(391, 148);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(34, 13);
+            this.label25.TabIndex = 75;
+            this.label25.Text = "Squel";
+            // 
+            // tbSquelch_enable
+            // 
+            this.tbSquelch_enable.Location = new System.Drawing.Point(427, 145);
+            this.tbSquelch_enable.Name = "tbSquelch_enable";
+            this.tbSquelch_enable.Size = new System.Drawing.Size(41, 20);
+            this.tbSquelch_enable.TabIndex = 74;
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(475, 148);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(40, 13);
+            this.label26.TabIndex = 73;
+            this.label26.Text = "SQl dB";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 655);
+            this.Controls.Add(this.tbSquelch_);
+            this.Controls.Add(this.label25);
+            this.Controls.Add(this.tbSquelch_enable);
+            this.Controls.Add(this.label26);
             this.Controls.Add(this.lblPresetName);
             this.Controls.Add(this.tbMicrdB);
             this.Controls.Add(this.label24);
@@ -901,5 +939,9 @@
         private System.Windows.Forms.TextBox tbCompdB;
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Label lblPresetName;
+        private System.Windows.Forms.TextBox tbSquelch_;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.TextBox tbSquelch_enable;
+        private System.Windows.Forms.Label label26;
     }
 }

@@ -858,7 +858,9 @@ namespace TXcalUi
                 ALC_enable,
                 SoftLimiter_enable,
                 MicrdB,
-                CompdB
+                CompdB,
+                Squelch_enable,
+                Squelch_threshold
         }
             //  Response:     { "Live", AUDIO_SRC_TWOTONE, 2.00f, 0.20f, 0.90f, true, ADC_LPF_MODE_OFF, false, false, -1.4f, true, true, 0.00f, SSB_DSP_FREQ_DEV_SLEW_UNLIMITED_HZ, false, ENVELOPE_INTERP_CURVE_CATMULL_ROM, true, true, ENV_GDEQ_VARIANT_CANDIDATE_B },
 
@@ -909,6 +911,8 @@ namespace TXcalUi
             tbSoftLimiter.Text = parts[(int)Presets.SoftLimiter_enable];
             tbCompdB.Text = parts[(int)Presets.CompdB];
             tbMicrdB.Text = parts[(int)Presets.MicrdB];
+            tbSquelch_enable.Text = parts[(int)Presets.Squelch_enable];
+            tbSquelch_.Text = parts[(int)Presets.Squelch_threshold];
 
             return parts[(int)Presets.name];
         }
@@ -986,15 +990,6 @@ namespace TXcalUi
             return pLines[0];
         }
 
-        private void label23_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tbMicrdB_TextChanged(object sender, EventArgs e)
-        {
-
-        }
 
         // Nothing native to release here on close -- SDRunoPlugin_TXcalUi's destructor
         // (native side) owns the lifetime of TXcalUiHost/TXcalControllerBridge and
