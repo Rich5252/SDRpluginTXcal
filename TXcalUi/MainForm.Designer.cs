@@ -85,6 +85,11 @@
             this.label3 = new System.Windows.Forms.Label();
             this.tbSoftLimiter = new System.Windows.Forms.TextBox();
             this.label22 = new System.Windows.Forms.Label();
+            this.tbCompdB = new System.Windows.Forms.TextBox();
+            this.label23 = new System.Windows.Forms.Label();
+            this.tbMicrdB = new System.Windows.Forms.TextBox();
+            this.label24 = new System.Windows.Forms.Label();
+            this.lblPresetName = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -126,17 +131,17 @@
             // 
             // tbData
             // 
-            this.tbData.Location = new System.Drawing.Point(21, 175);
+            this.tbData.Location = new System.Drawing.Point(17, 224);
             this.tbData.Multiline = true;
             this.tbData.Name = "tbData";
             this.tbData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbData.Size = new System.Drawing.Size(541, 284);
+            this.tbData.Size = new System.Drawing.Size(541, 223);
             this.tbData.TabIndex = 4;
             this.tbData.WordWrap = false;
             // 
             // butMeas
             // 
-            this.butMeas.Location = new System.Drawing.Point(570, 145);
+            this.butMeas.Location = new System.Drawing.Point(565, 225);
             this.butMeas.Name = "butMeas";
             this.butMeas.Size = new System.Drawing.Size(89, 24);
             this.butMeas.TabIndex = 5;
@@ -146,7 +151,7 @@
             // 
             // btStop
             // 
-            this.btStop.Location = new System.Drawing.Point(570, 204);
+            this.btStop.Location = new System.Drawing.Point(565, 284);
             this.btStop.Name = "btStop";
             this.btStop.Size = new System.Drawing.Size(89, 27);
             this.btStop.TabIndex = 6;
@@ -156,7 +161,7 @@
             // 
             // but3rdIMD
             // 
-            this.but3rdIMD.Location = new System.Drawing.Point(570, 298);
+            this.but3rdIMD.Location = new System.Drawing.Point(565, 378);
             this.but3rdIMD.Name = "but3rdIMD";
             this.but3rdIMD.Size = new System.Drawing.Size(89, 23);
             this.but3rdIMD.TabIndex = 7;
@@ -166,7 +171,7 @@
             // 
             // tbCmd
             // 
-            this.tbCmd.Location = new System.Drawing.Point(214, 147);
+            this.tbCmd.Location = new System.Drawing.Point(208, 195);
             this.tbCmd.Name = "tbCmd";
             this.tbCmd.Size = new System.Drawing.Size(72, 20);
             this.tbCmd.TabIndex = 8;
@@ -175,7 +180,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(185, 150);
+            this.label1.Location = new System.Drawing.Point(179, 198);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(27, 13);
             this.label1.TabIndex = 9;
@@ -200,7 +205,7 @@
             // 
             // butImage
             // 
-            this.butImage.Location = new System.Drawing.Point(570, 339);
+            this.butImage.Location = new System.Drawing.Point(565, 419);
             this.butImage.Name = "butImage";
             this.butImage.Size = new System.Drawing.Size(89, 23);
             this.butImage.TabIndex = 12;
@@ -210,7 +215,7 @@
             // 
             // butMicr
             // 
-            this.butMicr.Location = new System.Drawing.Point(570, 381);
+            this.butMicr.Location = new System.Drawing.Point(565, 461);
             this.butMicr.Name = "butMicr";
             this.butMicr.Size = new System.Drawing.Size(89, 23);
             this.butMicr.TabIndex = 13;
@@ -220,7 +225,7 @@
             // 
             // butMeasDuty
             // 
-            this.butMeasDuty.Location = new System.Drawing.Point(570, 175);
+            this.butMeasDuty.Location = new System.Drawing.Point(565, 255);
             this.butMeasDuty.Name = "butMeasDuty";
             this.butMeasDuty.Size = new System.Drawing.Size(89, 23);
             this.butMeasDuty.TabIndex = 14;
@@ -230,7 +235,7 @@
             // 
             // butMidBand
             // 
-            this.butMidBand.Location = new System.Drawing.Point(570, 446);
+            this.butMidBand.Location = new System.Drawing.Point(565, 526);
             this.butMidBand.Name = "butMidBand";
             this.butMidBand.Size = new System.Drawing.Size(89, 23);
             this.butMidBand.TabIndex = 15;
@@ -240,7 +245,7 @@
             // 
             // butWide
             // 
-            this.butWide.Location = new System.Drawing.Point(570, 488);
+            this.butWide.Location = new System.Drawing.Point(565, 568);
             this.butWide.Name = "butWide";
             this.butWide.Size = new System.Drawing.Size(89, 23);
             this.butWide.TabIndex = 16;
@@ -250,7 +255,7 @@
             // 
             // butSpread
             // 
-            this.butSpread.Location = new System.Drawing.Point(570, 410);
+            this.butSpread.Location = new System.Drawing.Point(565, 490);
             this.butSpread.Name = "butSpread";
             this.butSpread.Size = new System.Drawing.Size(89, 23);
             this.butSpread.TabIndex = 17;
@@ -260,7 +265,7 @@
             // 
             // butFloor
             // 
-            this.butFloor.Location = new System.Drawing.Point(570, 257);
+            this.butFloor.Location = new System.Drawing.Point(565, 337);
             this.butFloor.Name = "butFloor";
             this.butFloor.Size = new System.Drawing.Size(89, 23);
             this.butFloor.TabIndex = 18;
@@ -270,7 +275,7 @@
             // 
             // tbResults
             // 
-            this.tbResults.Location = new System.Drawing.Point(23, 461);
+            this.tbResults.Location = new System.Drawing.Point(19, 449);
             this.tbResults.Multiline = true;
             this.tbResults.Name = "tbResults";
             this.tbResults.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -280,7 +285,7 @@
             // 
             // butWideIMD
             // 
-            this.butWideIMD.Location = new System.Drawing.Point(570, 525);
+            this.butWideIMD.Location = new System.Drawing.Point(565, 605);
             this.butWideIMD.Name = "butWideIMD";
             this.butWideIMD.Size = new System.Drawing.Size(89, 23);
             this.butWideIMD.TabIndex = 20;
@@ -438,6 +443,7 @@
             this.tbLPF.Name = "tbLPF";
             this.tbLPF.Size = new System.Drawing.Size(41, 20);
             this.tbLPF.TabIndex = 40;
+            this.tbLPF.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // label12
             // 
@@ -531,7 +537,7 @@
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(292, 151);
+            this.label18.Location = new System.Drawing.Point(286, 199);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(67, 13);
             this.label18.TabIndex = 51;
@@ -539,7 +545,7 @@
             // 
             // tbTone1
             // 
-            this.tbTone1.Location = new System.Drawing.Point(368, 148);
+            this.tbTone1.Location = new System.Drawing.Point(362, 196);
             this.tbTone1.Name = "tbTone1";
             this.tbTone1.Size = new System.Drawing.Size(53, 20);
             this.tbTone1.TabIndex = 52;
@@ -547,7 +553,7 @@
             // 
             // tbTone2
             // 
-            this.tbTone2.Location = new System.Drawing.Point(427, 148);
+            this.tbTone2.Location = new System.Drawing.Point(421, 196);
             this.tbTone2.Name = "tbTone2";
             this.tbTone2.Size = new System.Drawing.Size(53, 20);
             this.tbTone2.TabIndex = 53;
@@ -603,7 +609,7 @@
             // 
             // butSaveLog
             // 
-            this.butSaveLog.Location = new System.Drawing.Point(21, 146);
+            this.butSaveLog.Location = new System.Drawing.Point(15, 194);
             this.butSaveLog.Name = "butSaveLog";
             this.butSaveLog.Size = new System.Drawing.Size(75, 23);
             this.butSaveLog.TabIndex = 60;
@@ -613,7 +619,7 @@
             // 
             // butClearLog
             // 
-            this.butClearLog.Location = new System.Drawing.Point(128, 147);
+            this.butClearLog.Location = new System.Drawing.Point(122, 195);
             this.butClearLog.Name = "butClearLog";
             this.butClearLog.Size = new System.Drawing.Size(48, 23);
             this.butClearLog.TabIndex = 61;
@@ -648,7 +654,7 @@
             // 
             // butUpdate
             // 
-            this.butUpdate.Location = new System.Drawing.Point(501, 145);
+            this.butUpdate.Location = new System.Drawing.Point(495, 193);
             this.butUpdate.Name = "butUpdate";
             this.butUpdate.Size = new System.Drawing.Size(61, 23);
             this.butUpdate.TabIndex = 63;
@@ -688,11 +694,58 @@
             this.label22.TabIndex = 66;
             this.label22.Text = "Soft Lim";
             // 
+            // tbCompdB
+            // 
+            this.tbCompdB.Location = new System.Drawing.Point(223, 145);
+            this.tbCompdB.Name = "tbCompdB";
+            this.tbCompdB.Size = new System.Drawing.Size(41, 20);
+            this.tbCompdB.TabIndex = 69;
+            this.tbCompdB.TextChanged += new System.EventHandler(this.tbMicrdB_TextChanged);
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(278, 148);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(43, 13);
+            this.label23.TabIndex = 68;
+            this.label23.Text = "Micr dB";
+            this.label23.Click += new System.EventHandler(this.label23_Click);
+            // 
+            // tbMicrdB
+            // 
+            this.tbMicrdB.Location = new System.Drawing.Point(328, 145);
+            this.tbMicrdB.Name = "tbMicrdB";
+            this.tbMicrdB.Size = new System.Drawing.Size(41, 20);
+            this.tbMicrdB.TabIndex = 71;
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(170, 148);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(50, 13);
+            this.label24.TabIndex = 70;
+            this.label24.Text = "Comp dB";
+            // 
+            // lblPresetName
+            // 
+            this.lblPresetName.AutoSize = true;
+            this.lblPresetName.Location = new System.Drawing.Point(163, 24);
+            this.lblPresetName.Name = "lblPresetName";
+            this.lblPresetName.Size = new System.Drawing.Size(0, 13);
+            this.lblPresetName.TabIndex = 72;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(671, 667);
+            this.ClientSize = new System.Drawing.Size(671, 655);
+            this.Controls.Add(this.lblPresetName);
+            this.Controls.Add(this.tbMicrdB);
+            this.Controls.Add(this.label24);
+            this.Controls.Add(this.tbCompdB);
+            this.Controls.Add(this.label23);
             this.Controls.Add(this.tbSoftLimiter);
             this.Controls.Add(this.label22);
             this.Controls.Add(this.tbALC);
@@ -843,5 +896,10 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox tbSoftLimiter;
         private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.TextBox tbMicrdB;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.TextBox tbCompdB;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.Label lblPresetName;
     }
 }

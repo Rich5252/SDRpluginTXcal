@@ -440,6 +440,17 @@ namespace TXcalUi
                 AppendToDataBox($"Response: {strRet}\r\n");
 
                 GetAndUpdateSettings(); // refresh the settings display after any command that might have changed them
+                
+                bool isNumeric = int.TryParse(strCmd, out int n);
+                if (isNumeric && n >= 0 && n <= 9)
+                {
+                    lblPreset.Text = $"Preset {n}";
+                    lblPresetName.Text = strRet.Substring(10, strRet.Length - 10);
+                }
+                else
+                {
+                    lblPreset.Text = $"Current";
+                }
             }
             
             tbCmd.Text = string.Empty;
@@ -825,7 +836,7 @@ namespace TXcalUi
          public enum Presets
             {
                 preamble,
-                live,
+                name,
                 audio_source,
                 relative_delay_samples,
                 env_pwm_offset,
@@ -845,16 +856,18 @@ namespace TXcalUi
                 Shelf_A_enable,
                 gd_eq_variant,
                 ALC_enable,
-                SoftLimiter_enable
+                SoftLimiter_enable,
+                MicrdB,
+                CompdB
         }
             //  Response:     { "Live", AUDIO_SRC_TWOTONE, 2.00f, 0.20f, 0.90f, true, ADC_LPF_MODE_OFF, false, false, -1.4f, true, true, 0.00f, SSB_DSP_FREQ_DEV_SLEW_UNLIMITED_HZ, false, ENVELOPE_INTERP_CURVE_CATMULL_ROM, true, true, ENV_GDEQ_VARIANT_CANDIDATE_B },
 
-        private void UpdatePresets(string Poutput)
+        private string UpdatePresets(string Poutput)
         {
             if (Poutput.Contains("ERROR") || !Poutput.Contains("\"Live\","))
             {
                 tbData.AppendText($"Error in P response: {Poutput}\r\n");
-                return;
+                return "ERROR";
             }
 
             string[] parts = Poutput.Split(new char[] { '{', '}', ',' }, StringSplitOptions.RemoveEmptyEntries);
@@ -894,6 +907,10 @@ namespace TXcalUi
 
             tbALC.Text = parts[(int)Presets.ALC_enable];
             tbSoftLimiter.Text = parts[(int)Presets.SoftLimiter_enable];
+            tbCompdB.Text = parts[(int)Presets.CompdB];
+            tbMicrdB.Text = parts[(int)Presets.MicrdB];
+
+            return parts[(int)Presets.name];
         }
 
         private void butSaveLog_Click(object sender, EventArgs e)
@@ -959,13 +976,24 @@ namespace TXcalUi
             GetAndUpdateSettings();
         }
 
-        private async void GetAndUpdateSettings()
+        private async Task<string> GetAndUpdateSettings()
         {
             string[] pLines = await _serial.SendTaggedAsync("P");
             if (pLines.Length > 1)
             {
                 UpdatePresets(pLines[1]);
             }
+            return pLines[0];
+        }
+
+        private void label23_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tbMicrdB_TextChanged(object sender, EventArgs e)
+        {
+
         }
 
         // Nothing native to release here on close -- SDRunoPlugin_TXcalUi's destructor
