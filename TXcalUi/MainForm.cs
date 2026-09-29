@@ -301,6 +301,7 @@ namespace TXcalUi
         private void RefreshFrequencyDisplay()
         {
             double freqHz = _controller.GetVfoFrequency(Channel);
+            if (freqHz == 0) return;
             lblFrequency.Text = $"{freqHz / 1e6:F6} MHz";
             AppendToDataBox($"SDR frequency updated to {freqHz} MHz\r\n");
         }
@@ -988,6 +989,11 @@ namespace TXcalUi
                 UpdatePresets(pLines[1]);
             }
             return pLines[0];
+        }
+
+        private void MainForm_MouseMove(object sender, MouseEventArgs e)
+        {
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
 

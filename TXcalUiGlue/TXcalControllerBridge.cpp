@@ -76,10 +76,11 @@ static double GetVfoFrequencySafe(IUnoPluginController* controller, channel_t ch
 				std::this_thread::sleep_for(std::chrono::milliseconds(5));
 				continue;
 			}
-			throw;
+			continue;		//throw;
 		}
 	}
-	throw std::runtime_error("GetVfoFrequencySafe: exhausted retries");
+	//throw std::runtime_error("GetVfoFrequencySafe: exhausted retries");
+	return 0.0f;
 }
 
 static bool SetVfoFrequencySafe(IUnoPluginController* controller, channel_t channel, double frequencyHz)
@@ -148,7 +149,7 @@ static double GetCenterFrequencySafe(IUnoPluginController* controller, channel_t
 				std::this_thread::sleep_for(std::chrono::milliseconds(5));
 				continue;
 			}
-			throw;
+			//throw;
 		}
 	}
 	throw std::runtime_error("GetCenterFrequencySafe: exhausted retries");
