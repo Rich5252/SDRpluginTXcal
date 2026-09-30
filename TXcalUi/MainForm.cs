@@ -695,21 +695,25 @@ namespace TXcalUi
             double f78kLo = fbase - 78000 - 6000; // 14.199220 MHz
             double f78kHi = fbase + 78000 - 6000; // 14.199220 MHz
 
+            StopFlg = false; // reset the stop flag before starting the measurement loop
+
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorUSB); // set demodulator to CW for IMD measurement
             _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for IMD measurement
 
             double main = MeasPower(fbase, 5, NoFreqAdjust);
             main = MeasPower(fbase, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"Wide Test Main Level (3k bndw):, {main:F3}, dBm\r\n");
+            if (StopFlg) return;
 
             double pwr = MeasPower(f16kLo, 5, NoFreqAdjust);
             pwr = MeasPower(f16kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"Low 16k Image (3k bndw):, {pwr-main:F3}, dB\r\n");
+            if (StopFlg) return;
 
             pwr = MeasPower(f16kHi, 5, NoFreqAdjust);
             pwr = MeasPower(f16kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"High 16k Image (3k bndw):, {pwr - main:F3}, dB\r\n");
-
+            if (StopFlg) return;
 
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorDigital); // set demodulator to CW for IMD measurement
             _controller.SetFilterBandwidth(Channel, 12000); // set filter to 3 kHz for IMD measurement
@@ -717,14 +721,17 @@ namespace TXcalUi
             pwr = MeasPower(fwide12Lo, 5, NoFreqAdjust);
             pwr = MeasPower(fwide12Lo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"Low 12kHz wide:, {pwr - main:F3}, dB\r\n");
+            if (StopFlg) return;
 
             pwr = MeasPower(fwide12Hi, 5, NoFreqAdjust);
             pwr = MeasPower(fwide12Hi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"High 12k wide:, {pwr - main:F3}, dB\r\n");
+            if (StopFlg) return;
 
             pwr = MeasPower(f78kLo, 5, NoFreqAdjust);
             pwr = MeasPower(f78kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"Low 78k Image:, {pwr - main:F3}, dB\r\n");
+            if (StopFlg) return;
 
             pwr = MeasPower(f78kHi, 5, NoFreqAdjust);
             pwr = MeasPower(f78kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
@@ -744,32 +751,40 @@ namespace TXcalUi
             double f20kLo = fbase - 20000; 
             double f20kHi = fbase + 20000; // 14.200700 MHz
 
+            StopFlg = false; // reset the stop flag before starting the measurement loop    
+
             _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorUSB); // set demodulator to CW for IMD measurement
             _controller.SetFilterBandwidth(Channel, 3000); // set filter to 3 kHz for IMD measurement
 
             double main = MeasPower(fbase, 5, NoFreqAdjust);
             main = MeasPower(fbase, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"Spread in 3k bndw - Main Level:, {main:F3}, dBm\r\n");
+            if (StopFlg) return;
 
             double pwr = MeasPower(f5kLo, 5, NoFreqAdjust);
             pwr = MeasPower(f5kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"Low 5k leakage:, {pwr - main:F3}, dB\r\n");
+            if (StopFlg) return;
 
             pwr = MeasPower(f5kHi, 5, NoFreqAdjust);
             pwr = MeasPower(f5kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"High 5k leakage:, {pwr - main:F3}, dB\r\n");
+            if (StopFlg) return;
 
             pwr = MeasPower(f10kLo, 5, NoFreqAdjust);
             pwr = MeasPower(f10kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"Low 10k leakage:, {pwr - main:F3}, dB\r\n");
+            if (StopFlg) return;
 
             pwr = MeasPower(f10kHi, 5, NoFreqAdjust);
             pwr = MeasPower(f10kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"High 10k leakage:, {pwr - main:F3}, dB\r\n");
+            if (StopFlg) return;
 
             pwr = MeasPower(f20kLo, 5, NoFreqAdjust);
             pwr = MeasPower(f20kLo, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
             tbResults.AppendText($"Low 20k leakage:, {pwr - main:F3}, dB\r\n");
+            if (StopFlg) return;
 
             pwr = MeasPower(f20kHi, 5, NoFreqAdjust);
             pwr = MeasPower(f20kHi, 5, NoFreqAdjust);       //meas twice to give time for agc to settle
@@ -808,6 +823,8 @@ namespace TXcalUi
             double flsb3 = 2 * ft1 - ft2; // 14.199500 MHz
             double fusb3 = 2 * ft2 - ft1; // 14.203100 MHz
 
+            StopFlg = false; // reset the stop flag before starting the measurement loop
+
             double at900 = MeasPower(ft1, 5, NoFreqAdjust);
             tbResults.AppendText($"Wide IMD (250Hz bndw) - {tbTone1.Text}Hz ref level:, {at900:F3}, dBm\r\n");
 
@@ -817,6 +834,7 @@ namespace TXcalUi
                 double IMD = MeasPower(flsb3 - deltaF, 5, NoFreqAdjust);
                 IMD = MeasPower(flsb3 - deltaF, 5, NoFreqAdjust);
                 tbResults.AppendText($"Wide IMD (250Hz bndw) - freqHz/ampl:, {double.Parse(tbTone1.Text) - ToneDiff - deltaF}, {IMD - at900:F3}, dB\r\n");
+                if (StopFlg) return;
             }
 
             double at1900 = MeasPower(ft2, 5, NoFreqAdjust);
@@ -827,6 +845,7 @@ namespace TXcalUi
                 double IMD = MeasPower(fusb3 + deltaF, 5, NoFreqAdjust);
                 IMD = MeasPower(fusb3 + deltaF, 5, NoFreqAdjust);
                 tbResults.AppendText($"Wide IMD (250Hz bndw) - freqHz/ampl:, {double.Parse(tbTone2.Text) + ToneDiff + deltaF}, {IMD - at1900:F3}, dB\r\n");
+                if (StopFlg) return;
             }
             tbResults.AppendText("\r\n");
 
