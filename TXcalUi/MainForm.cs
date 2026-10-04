@@ -127,6 +127,22 @@ namespace TXcalUi
                 _pendingDataText.Clear();
             }
 
+            if (text.StartsWith("{A"))
+            {
+                //level reading from the ESP32 -- parse it and update the level display
+                int pos = text.IndexOf("}");
+                double.TryParse(text.Substring(2, pos - 2), out double level);
+                levelMeter1.Level = level;
+                //tbData.AppendText($"Level reading from ESP32: {level:F3} dBm\r\n");
+                return;
+            }
+            if (text.Contains("(field A): "))
+            { 
+                int pos = text.IndexOf("(field A): ");
+                //lblLevel.Text = text.Substring(pos + 11, 3).Trim();
+                levelMeter1.Text = text.Substring(pos + 11, 3).ToUpper();
+            }
+
             _fullLog.Append(text);
             TrimFullLogIfNeeded();
 
@@ -852,8 +868,57 @@ namespace TXcalUi
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
+        private async void but3kBands_Click(object sender, EventArgs e)
+        {
+            _controller.SetDemodulatorType(Channel, DemodulatorType.DemodulatorUSB);
+            _controller.SetFilterBandwidth(Channel, 3000);
 
-         public enum Presets
+            double ft1 = 14200000 + double.Parse(tbCalF.Text); // 14.200700 MHz
+
+            StopFlg = false; // reset the stop flag before starting the measurement loop
+
+            string strRet = await _serial.SendExclusiveAsync("o");
+            tbResults.AppendText($"{strRet}\r\n");
+
+            double main = MeasPower(ft1, 20, NoFreqAdjust);
+            main = MeasPower(ft1, 10, NoFreqAdjust);       //meas twice to give time for agc to settle
+            tbResults.AppendText($"Noise Floor 3k bndw:, {main:F3}, dBm\r\n");
+
+            strRet = await _serial.SendExclusiveAsync("o");
+
+            double RefPwer = MeasPower(ft1, 5, NoFreqAdjust);
+            RefPwer = MeasPower(ft1, 5, NoFreqAdjust); 
+            tbResults.AppendText($"3k Bands ref level:, {RefPwer:F3}, dBm\r\n");
+
+            double thisFreq = 0;
+            for (double deltaF = 3000; deltaF < 64000; deltaF += 3000)
+            {
+                thisFreq = ft1 - deltaF;
+                double thisPwr = MeasPower(thisFreq, 5, NoFreqAdjust);
+                thisPwr = MeasPower(thisFreq, 5, NoFreqAdjust);
+                tbResults.AppendText($"3k Bands Lower - freqHz/ampl:, {-deltaF}, {thisPwr - RefPwer:F3}, dB\r\n");
+                if (StopFlg) return;
+            }
+
+            tbResults.AppendText("\r\n");
+
+            thisFreq = 0;
+            for (double deltaF = 3000; deltaF < 64000; deltaF += 3000)
+            {
+                thisFreq = ft1 + deltaF;
+                double thisPwr = MeasPower(thisFreq, 5, NoFreqAdjust);
+                thisPwr = MeasPower(thisFreq, 5, NoFreqAdjust);
+                tbResults.AppendText($"3k Bands Upper - freqHz/ampl:, {deltaF}, {thisPwr - RefPwer:F3}, dB\r\n");
+                if (StopFlg) return;
+            }
+
+            tbResults.AppendText("\r\n");
+
+            tbCmd.Focus(); // put the cursor back in the command box for convenience
+        }
+
+
+        public enum Presets
             {
                 preamble,
                 name,
@@ -1014,6 +1079,8 @@ namespace TXcalUi
         {
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
+
+
 
 
         // Nothing native to release here on close -- SDRunoPlugin_TXcalUi's destructor

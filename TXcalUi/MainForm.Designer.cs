@@ -94,6 +94,9 @@
             this.label25 = new System.Windows.Forms.Label();
             this.tbSquelch_enable = new System.Windows.Forms.TextBox();
             this.label26 = new System.Windows.Forms.Label();
+            this.but3kBands = new System.Windows.Forms.Button();
+            this.lblLevel = new System.Windows.Forms.Label();
+            this.levelMeter1 = new TXcalUi.LevelMeter();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -118,7 +121,7 @@
             // 
             // txtFrequency
             // 
-            this.txtFrequency.Location = new System.Drawing.Point(17, 119);
+            this.txtFrequency.Location = new System.Drawing.Point(19, 119);
             this.txtFrequency.Name = "txtFrequency";
             this.txtFrequency.Size = new System.Drawing.Size(84, 20);
             this.txtFrequency.TabIndex = 2;
@@ -145,7 +148,7 @@
             // 
             // butMeas
             // 
-            this.butMeas.Location = new System.Drawing.Point(565, 225);
+            this.butMeas.Location = new System.Drawing.Point(570, 192);
             this.butMeas.Name = "butMeas";
             this.butMeas.Size = new System.Drawing.Size(89, 24);
             this.butMeas.TabIndex = 5;
@@ -155,7 +158,7 @@
             // 
             // btStop
             // 
-            this.btStop.Location = new System.Drawing.Point(565, 284);
+            this.btStop.Location = new System.Drawing.Point(570, 251);
             this.btStop.Name = "btStop";
             this.btStop.Size = new System.Drawing.Size(89, 27);
             this.btStop.TabIndex = 6;
@@ -165,7 +168,7 @@
             // 
             // but3rdIMD
             // 
-            this.but3rdIMD.Location = new System.Drawing.Point(565, 378);
+            this.but3rdIMD.Location = new System.Drawing.Point(570, 344);
             this.but3rdIMD.Name = "but3rdIMD";
             this.but3rdIMD.Size = new System.Drawing.Size(89, 23);
             this.but3rdIMD.TabIndex = 7;
@@ -209,7 +212,7 @@
             // 
             // butImage
             // 
-            this.butImage.Location = new System.Drawing.Point(565, 419);
+            this.butImage.Location = new System.Drawing.Point(570, 386);
             this.butImage.Name = "butImage";
             this.butImage.Size = new System.Drawing.Size(89, 23);
             this.butImage.TabIndex = 12;
@@ -219,7 +222,7 @@
             // 
             // butMicr
             // 
-            this.butMicr.Location = new System.Drawing.Point(565, 461);
+            this.butMicr.Location = new System.Drawing.Point(570, 428);
             this.butMicr.Name = "butMicr";
             this.butMicr.Size = new System.Drawing.Size(89, 23);
             this.butMicr.TabIndex = 13;
@@ -229,7 +232,7 @@
             // 
             // butMeasDuty
             // 
-            this.butMeasDuty.Location = new System.Drawing.Point(565, 255);
+            this.butMeasDuty.Location = new System.Drawing.Point(570, 222);
             this.butMeasDuty.Name = "butMeasDuty";
             this.butMeasDuty.Size = new System.Drawing.Size(89, 23);
             this.butMeasDuty.TabIndex = 14;
@@ -239,7 +242,7 @@
             // 
             // butMidBand
             // 
-            this.butMidBand.Location = new System.Drawing.Point(565, 526);
+            this.butMidBand.Location = new System.Drawing.Point(570, 493);
             this.butMidBand.Name = "butMidBand";
             this.butMidBand.Size = new System.Drawing.Size(89, 23);
             this.butMidBand.TabIndex = 15;
@@ -249,7 +252,7 @@
             // 
             // butWide
             // 
-            this.butWide.Location = new System.Drawing.Point(565, 568);
+            this.butWide.Location = new System.Drawing.Point(570, 535);
             this.butWide.Name = "butWide";
             this.butWide.Size = new System.Drawing.Size(89, 23);
             this.butWide.TabIndex = 16;
@@ -259,7 +262,7 @@
             // 
             // butSpread
             // 
-            this.butSpread.Location = new System.Drawing.Point(565, 490);
+            this.butSpread.Location = new System.Drawing.Point(570, 457);
             this.butSpread.Name = "butSpread";
             this.butSpread.Size = new System.Drawing.Size(89, 23);
             this.butSpread.TabIndex = 17;
@@ -269,7 +272,7 @@
             // 
             // butFloor
             // 
-            this.butFloor.Location = new System.Drawing.Point(565, 337);
+            this.butFloor.Location = new System.Drawing.Point(570, 304);
             this.butFloor.Name = "butFloor";
             this.butFloor.Size = new System.Drawing.Size(89, 23);
             this.butFloor.TabIndex = 18;
@@ -289,7 +292,7 @@
             // 
             // butWideIMD
             // 
-            this.butWideIMD.Location = new System.Drawing.Point(565, 605);
+            this.butWideIMD.Location = new System.Drawing.Point(570, 572);
             this.butWideIMD.Name = "butWideIMD";
             this.butWideIMD.Size = new System.Drawing.Size(89, 23);
             this.butWideIMD.TabIndex = 20;
@@ -339,7 +342,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(386, 97);
+            this.label5.Location = new System.Drawing.Point(386, 98);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(28, 13);
             this.label5.TabIndex = 25;
@@ -355,7 +358,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(287, 97);
+            this.label6.Location = new System.Drawing.Point(287, 98);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(27, 13);
             this.label6.TabIndex = 27;
@@ -371,7 +374,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(182, 97);
+            this.label7.Location = new System.Drawing.Point(182, 98);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(28, 13);
             this.label7.TabIndex = 29;
@@ -676,7 +679,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(481, 123);
+            this.label3.Location = new System.Drawing.Point(481, 124);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(27, 13);
             this.label3.TabIndex = 64;
@@ -692,7 +695,7 @@
             // label22
             // 
             this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(569, 123);
+            this.label22.Location = new System.Drawing.Point(569, 124);
             this.label22.Name = "label22";
             this.label22.Size = new System.Drawing.Size(45, 13);
             this.label22.TabIndex = 66;
@@ -700,7 +703,7 @@
             // 
             // tbCompdB
             // 
-            this.tbCompdB.Location = new System.Drawing.Point(223, 145);
+            this.tbCompdB.Location = new System.Drawing.Point(320, 146);
             this.tbCompdB.Name = "tbCompdB";
             this.tbCompdB.Size = new System.Drawing.Size(41, 20);
             this.tbCompdB.TabIndex = 69;
@@ -708,7 +711,7 @@
             // label23
             // 
             this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(278, 148);
+            this.label23.Location = new System.Drawing.Point(375, 150);
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(43, 13);
             this.label23.TabIndex = 68;
@@ -716,7 +719,7 @@
             // 
             // tbMicrdB
             // 
-            this.tbMicrdB.Location = new System.Drawing.Point(328, 145);
+            this.tbMicrdB.Location = new System.Drawing.Point(425, 146);
             this.tbMicrdB.Name = "tbMicrdB";
             this.tbMicrdB.Size = new System.Drawing.Size(41, 20);
             this.tbMicrdB.TabIndex = 71;
@@ -724,7 +727,7 @@
             // label24
             // 
             this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(170, 148);
+            this.label24.Location = new System.Drawing.Point(267, 150);
             this.label24.Name = "label24";
             this.label24.Size = new System.Drawing.Size(50, 13);
             this.label24.TabIndex = 70;
@@ -740,7 +743,7 @@
             // 
             // tbSquelch_
             // 
-            this.tbSquelch_.Location = new System.Drawing.Point(521, 145);
+            this.tbSquelch_.Location = new System.Drawing.Point(618, 146);
             this.tbSquelch_.Name = "tbSquelch_";
             this.tbSquelch_.Size = new System.Drawing.Size(41, 20);
             this.tbSquelch_.TabIndex = 76;
@@ -748,7 +751,7 @@
             // label25
             // 
             this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(391, 148);
+            this.label25.Location = new System.Drawing.Point(488, 150);
             this.label25.Name = "label25";
             this.label25.Size = new System.Drawing.Size(34, 13);
             this.label25.TabIndex = 75;
@@ -756,7 +759,7 @@
             // 
             // tbSquelch_enable
             // 
-            this.tbSquelch_enable.Location = new System.Drawing.Point(427, 145);
+            this.tbSquelch_enable.Location = new System.Drawing.Point(524, 146);
             this.tbSquelch_enable.Name = "tbSquelch_enable";
             this.tbSquelch_enable.Size = new System.Drawing.Size(41, 20);
             this.tbSquelch_enable.TabIndex = 74;
@@ -764,17 +767,54 @@
             // label26
             // 
             this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(475, 148);
+            this.label26.Location = new System.Drawing.Point(572, 150);
             this.label26.Name = "label26";
             this.label26.Size = new System.Drawing.Size(40, 13);
             this.label26.TabIndex = 73;
             this.label26.Text = "SQl dB";
+            // 
+            // but3kBands
+            // 
+            this.but3kBands.Location = new System.Drawing.Point(570, 611);
+            this.but3kBands.Name = "but3kBands";
+            this.but3kBands.Size = new System.Drawing.Size(89, 23);
+            this.but3kBands.TabIndex = 77;
+            this.but3kBands.Text = "3k Bands";
+            this.but3kBands.UseVisualStyleBackColor = true;
+            this.but3kBands.Click += new System.EventHandler(this.but3kBands_Click);
+            // 
+            // lblLevel
+            // 
+            this.lblLevel.AutoSize = true;
+            this.lblLevel.Location = new System.Drawing.Point(267, 176);
+            this.lblLevel.Name = "lblLevel";
+            this.lblLevel.Size = new System.Drawing.Size(0, 13);
+            this.lblLevel.TabIndex = 79;
+            // 
+            // levelMeter1
+            // 
+            this.levelMeter1.BackColor = System.Drawing.Color.Black;
+            this.levelMeter1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.levelMeter1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.5F);
+            this.levelMeter1.ForeColor = System.Drawing.Color.Silver;
+            this.levelMeter1.Level = -60D;
+            this.levelMeter1.Location = new System.Drawing.Point(17, 151);
+            this.levelMeter1.Maximum = 7D;
+            this.levelMeter1.Minimum = -60D;
+            this.levelMeter1.Name = "levelMeter1";
+            this.levelMeter1.RedThresholdDb = 0D;
+            this.levelMeter1.Size = new System.Drawing.Size(247, 38);
+            this.levelMeter1.TabIndex = 78;
+            this.levelMeter1.Text = "OFF";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 655);
+            this.Controls.Add(this.lblLevel);
+            this.Controls.Add(this.levelMeter1);
+            this.Controls.Add(this.but3kBands);
             this.Controls.Add(this.tbSquelch_);
             this.Controls.Add(this.label25);
             this.Controls.Add(this.tbSquelch_enable);
@@ -852,6 +892,7 @@
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.lblFrequency);
             this.Controls.Add(this.menuStrip1);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
             this.Name = "MainForm";
             this.Text = "My Plugin";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
@@ -944,5 +985,8 @@
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.TextBox tbSquelch_enable;
         private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Button but3kBands;
+        private LevelMeter levelMeter1;
+        private System.Windows.Forms.Label lblLevel;
     }
 }
