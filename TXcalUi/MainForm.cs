@@ -1,13 +1,19 @@
 ﻿using SerialDemo;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 
-        
+
 namespace TXcalUi
 {
 
@@ -117,40 +123,71 @@ namespace TXcalUi
         // holding.
         private const int MaxDataBoxChars = 32_000;
 
-        private void DataFlushTimer_Tick(object sender, EventArgs e)
+
+
+    private readonly StringBuilder _lineBuf = new StringBuilder();
+    private static readonly Regex FieldRx = new Regex(@"\{([A-Za-z])([^{}]*)\}", RegexOptions.Compiled);
+    private static readonly Regex FieldLineRx = new Regex(@"^(\{[A-Za-z][^{}]*\})+$", RegexOptions.Compiled);
+
+    private void DataFlushTimer_Tick(object sender, EventArgs e)
+    {
+        string text;
+        lock (_pendingDataLock)
         {
-            string text;
-            lock (_pendingDataLock)
-            {
-                if (_pendingDataText.Length == 0) return;
-                text = _pendingDataText.ToString();
-                _pendingDataText.Clear();
-            }
-
-            if (text.StartsWith("{A"))
-            {
-                //level reading from the ESP32 -- parse it and update the level display
-                int pos = text.IndexOf("}");
-                double.TryParse(text.Substring(2, pos - 2), out double level);
-                levelMeter1.Level = level;
-                //tbData.AppendText($"Level reading from ESP32: {level:F3} dBm\r\n");
-                return;
-            }
-            if (text.Contains("(field A): "))
-            { 
-                int pos = text.IndexOf("(field A): ");
-                //lblLevel.Text = text.Substring(pos + 11, 3).Trim();
-                levelMeter1.Text = text.Substring(pos + 11, 3).ToUpper();
-            }
-
-            _fullLog.Append(text);
-            TrimFullLogIfNeeded();
-
-            tbData.AppendText(text);
-            TrimDataBoxIfNeeded();
+            if (_pendingDataText.Length == 0) return;
+            text = _pendingDataText.ToString();
+            _pendingDataText.Clear();
         }
 
-        private void TrimDataBoxIfNeeded()
+        _lineBuf.Append(text);
+        string all = _lineBuf.ToString();
+        int lastNl = all.LastIndexOf('\n');
+        if (lastNl < 0) return;                          // no complete line yet - wait for more
+        _lineBuf.Clear();
+        _lineBuf.Append(all, lastNl + 1, all.Length - lastNl - 1);   // keep the partial tail
+
+        var logText = new StringBuilder();
+        foreach (string raw in all.Substring(0, lastNl + 1).Split('\n'))
+        {
+            string line = raw.TrimEnd('\r');
+            if (line.Length == 0) continue;
+
+            if (FieldLineRx.IsMatch(line))               // pure data line: {A..}{F..}{R..}{S..}{T..} in any mix
+            {
+                foreach (Match m in FieldRx.Matches(line))
+                    HandleField(m.Groups[1].Value[0], m.Groups[2].Value);
+                //continue;                                // not logged (same as the old {A} behaviour)
+            }
+
+            int pos = line.IndexOf("(field A): ");
+            if (pos >= 0 && line.Length >= pos + 14)
+                levelMeter1.Text = line.Substring(pos + 11, 3).ToUpper();
+
+            logText.Append(line).Append("\r\n");
+        }
+
+        if (logText.Length == 0) return;
+        string s = logText.ToString();
+        _fullLog.Append(s);
+        TrimFullLogIfNeeded();
+        tbData.AppendText(s);
+        TrimDataBoxIfNeeded();
+    }
+
+    private void HandleField(char letter, string arg)
+    {
+        if (!double.TryParse(arg, NumberStyles.Float, CultureInfo.InvariantCulture, out double v)) return;
+        switch (letter)
+        {
+            case 'A': levelMeter1.Level = v; break;      // dB, may be "+02.3"
+            case 'F': lblFwd.Text = $"{v:F1} W"; break;   // rename to your controls
+            case 'R': lblRev.Text = $"{v:F2} W"; break;
+            case 'S': lblSwr.Text = $"{v:F1}"; break;
+            case 'T': lblTemp.Text = $"{v:F1} °C"; break;
+        }
+    }
+
+    private void TrimDataBoxIfNeeded()
         {
             int excess = tbData.TextLength - MaxDataBoxChars;
             if (excess <= 0) return;
@@ -332,7 +369,11 @@ namespace TXcalUi
         {
             if (double.TryParse(txtFrequency.Text, out double mhz))
             {
-                _controller.SetVfoFrequency(Channel, mhz * 1e6);
+                long hz = (long)Math.Round(mhz * 1e6);
+                string str = "{F" + hz.ToString(CultureInfo.InvariantCulture) + "}";
+                _serial.SendFireAndForget(str);
+                AppendToDataBox($"Sending: {str}\r\n");
+                _controller.SetVfoFrequency(Channel, hz);
                 RefreshFrequencyDisplay(); // SetVfoFrequency has now fully returned, so
                                            // t_insideSetCall is back to false and this reads
                                            // the real, settled value instead of the cached one
@@ -434,6 +475,22 @@ namespace TXcalUi
         private async void tbCmd_KeyPress(object sender, KeyPressEventArgs e)
         {
             string strCmd = e.KeyChar.ToString();
+
+            if (tbCmd.Text.StartsWith("{") || strCmd == "{")
+            {
+                if (strCmd != "}")
+                {
+                    return; // if the user is typing a {F...} command, don't send until they finish it with a }"
+                }
+                else
+                {
+                    strCmd = tbCmd.Text + strCmd; // if the user just typed the closing
+                    //_serial.SendFireAndForget(strCmd);
+                }
+            }
+
+            if (strCmd == "") strCmd = tbCmd.Text; // if Enter pressed, use the whole text box contents instead of just the last char
+
             AppendToDataBox($"Command sent: {strCmd}\r\n");
 
             if (strCmd == "P")
@@ -1079,6 +1136,7 @@ namespace TXcalUi
         {
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
+
 
 
 

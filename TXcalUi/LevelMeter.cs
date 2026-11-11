@@ -37,6 +37,7 @@ namespace TXcalUi
         private double _yellowDb = -18.0;
         private double _redDb = -6.0;
         private bool _showScale = true;
+        private BorderStyle _borderStyle = BorderStyle.None;
         private double _scaleStepDb = 10.0;
         private bool _showPeak = true;
         private int _peakHoldMs = 1500;
@@ -179,6 +180,20 @@ namespace TXcalUi
         {
             get => _redDb;
             set { _redDb = value; Invalidate(); }
+        }
+
+        [Category("Appearance"), DefaultValue(BorderStyle.None),
+         Description("None, a single-pixel line, or a sunken 3D border on all four sides.")]
+        public BorderStyle BorderStyle
+        {
+            get => _borderStyle;
+            set
+            {
+                if (!Enum.IsDefined(typeof(BorderStyle), value))
+                    throw new InvalidEnumArgumentException(nameof(value), (int)value, typeof(BorderStyle));
+                _borderStyle = value;
+                Invalidate();
+            }
         }
 
         [Category("Level Meter"), DefaultValue(true),
@@ -379,7 +394,13 @@ namespace TXcalUi
             }
 
             int scaleH = labelLine ? textH + 5 : 0;
-            Rectangle bar = new Rectangle(inset, 1, Width - 2 * inset, Height - scaleH - 2);
+
+            // Everything is laid out inside the border: 0 px for None, 1 for FixedSingle,
+            // 2 for Fixed3D (matching what a TextBox uses).
+            int b = _borderStyle == BorderStyle.Fixed3D ? 2 : _borderStyle == BorderStyle.FixedSingle ? 1 : 0;
+            Rectangle client = new Rectangle(b, b, Width - 2 * b, Height - 2 * b);
+
+            Rectangle bar = new Rectangle(client.Left + inset, client.Top + 1, client.Width - 2 * inset, client.Height - scaleH - 2);
             if (bar.Width < 4 || bar.Height < 2) return;
 
             double span = _maxDb - _minDb;
@@ -427,14 +448,19 @@ namespace TXcalUi
             if (hasText)
             {
                 Size tsz = TextRenderer.MeasureText(Text, Font, new Size(int.MaxValue, int.MaxValue), measureFlags);
-                textLeft = Math.Max(0, Width - 1 - tsz.Width);
+                textLeft = Math.Max(client.Left, client.Right - 1 - tsz.Width);
                 TextRenderer.DrawText(g, Text, Font,
-                    new Rectangle(textLeft, bar.Bottom + 4, Width - textLeft, textH),
+                    new Rectangle(textLeft, bar.Bottom + 4, client.Right - textLeft, textH),
                     ForeColor, measureFlags | TextFormatFlags.Right);
             }
 
             if (_showScale)
                 DrawScale(g, bar, span, textH, measureFlags, textLeft);
+
+            if (_borderStyle == BorderStyle.FixedSingle)
+                ControlPaint.DrawBorder(g, ClientRectangle, SystemColors.WindowFrame, ButtonBorderStyle.Solid);
+            else if (_borderStyle == BorderStyle.Fixed3D)
+                ControlPaint.DrawBorder3D(g, ClientRectangle, Border3DStyle.Sunken);
         }
 
         private void DrawScale(Graphics g, Rectangle bar, double span, int textH, TextFormatFlags measureFlags, int textLeft)

@@ -97,6 +97,10 @@
             this.but3kBands = new System.Windows.Forms.Button();
             this.lblLevel = new System.Windows.Forms.Label();
             this.levelMeter1 = new TXcalUi.LevelMeter();
+            this.lblFwd = new System.Windows.Forms.Label();
+            this.lblRev = new System.Windows.Forms.Label();
+            this.lblSwr = new System.Windows.Forms.Label();
+            this.lblTemp = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -138,6 +142,7 @@
             // 
             // tbData
             // 
+            this.tbData.BackColor = System.Drawing.SystemColors.Window;
             this.tbData.Location = new System.Drawing.Point(17, 224);
             this.tbData.Multiline = true;
             this.tbData.Name = "tbData";
@@ -793,25 +798,68 @@
             // 
             // levelMeter1
             // 
-            this.levelMeter1.BackColor = System.Drawing.Color.Black;
+            this.levelMeter1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.levelMeter1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.levelMeter1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.5F);
-            this.levelMeter1.ForeColor = System.Drawing.Color.Silver;
+            this.levelMeter1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.levelMeter1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.5F, System.Drawing.FontStyle.Bold);
+            this.levelMeter1.ForeColor = System.Drawing.Color.WhiteSmoke;
             this.levelMeter1.Level = -60D;
             this.levelMeter1.Location = new System.Drawing.Point(17, 151);
-            this.levelMeter1.Maximum = 7D;
+            this.levelMeter1.Maximum = 8D;
             this.levelMeter1.Minimum = -60D;
             this.levelMeter1.Name = "levelMeter1";
-            this.levelMeter1.RedThresholdDb = 0D;
+            this.levelMeter1.RedThresholdDb = -1D;
+            this.levelMeter1.SegmentCount = 34;
             this.levelMeter1.Size = new System.Drawing.Size(247, 38);
             this.levelMeter1.TabIndex = 78;
             this.levelMeter1.Text = "OFF";
+            this.levelMeter1.YellowThresholdDb = -20D;
+            // 
+            // lblFwd
+            // 
+            this.lblFwd.AutoSize = true;
+            this.lblFwd.Location = new System.Drawing.Point(267, 176);
+            this.lblFwd.Name = "lblFwd";
+            this.lblFwd.Size = new System.Drawing.Size(27, 13);
+            this.lblFwd.TabIndex = 80;
+            this.lblFwd.Text = "Fwd";
+            // 
+            // lblRev
+            // 
+            this.lblRev.AutoSize = true;
+            this.lblRev.Location = new System.Drawing.Point(320, 175);
+            this.lblRev.Name = "lblRev";
+            this.lblRev.Size = new System.Drawing.Size(27, 13);
+            this.lblRev.TabIndex = 81;
+            this.lblRev.Text = "Rev";
+            // 
+            // lblSwr
+            // 
+            this.lblSwr.AutoSize = true;
+            this.lblSwr.Location = new System.Drawing.Point(374, 175);
+            this.lblSwr.Name = "lblSwr";
+            this.lblSwr.Size = new System.Drawing.Size(25, 13);
+            this.lblSwr.TabIndex = 82;
+            this.lblSwr.Text = "Swr";
+            // 
+            // lblTemp
+            // 
+            this.lblTemp.AutoSize = true;
+            this.lblTemp.Location = new System.Drawing.Point(424, 175);
+            this.lblTemp.Name = "lblTemp";
+            this.lblTemp.Size = new System.Drawing.Size(34, 13);
+            this.lblTemp.TabIndex = 83;
+            this.lblTemp.Text = "Temp";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 655);
+            this.Controls.Add(this.lblTemp);
+            this.Controls.Add(this.lblSwr);
+            this.Controls.Add(this.lblRev);
+            this.Controls.Add(this.lblFwd);
             this.Controls.Add(this.lblLevel);
             this.Controls.Add(this.levelMeter1);
             this.Controls.Add(this.but3kBands);
@@ -988,5 +1036,9 @@
         private System.Windows.Forms.Button but3kBands;
         private LevelMeter levelMeter1;
         private System.Windows.Forms.Label lblLevel;
+        private System.Windows.Forms.Label lblFwd;
+        private System.Windows.Forms.Label lblRev;
+        private System.Windows.Forms.Label lblSwr;
+        private System.Windows.Forms.Label lblTemp;
     }
 }
