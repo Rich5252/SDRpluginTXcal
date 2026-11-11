@@ -96,11 +96,20 @@
             this.label26 = new System.Windows.Forms.Label();
             this.but3kBands = new System.Windows.Forms.Button();
             this.lblLevel = new System.Windows.Forms.Label();
-            this.levelMeter1 = new TXcalUi.LevelMeter();
             this.lblFwd = new System.Windows.Forms.Label();
             this.lblRev = new System.Windows.Forms.Label();
             this.lblSwr = new System.Windows.Forms.Label();
             this.lblTemp = new System.Windows.Forms.Label();
+            this.btnU = new System.Windows.Forms.Button();
+            this.btnD = new System.Windows.Forms.Button();
+            this.btnL50 = new System.Windows.Forms.Button();
+            this.btnCW = new System.Windows.Forms.Button();
+            this.btnUSB = new System.Windows.Forms.Button();
+            this.btn2T = new System.Windows.Forms.Button();
+            this.btnFT8 = new System.Windows.Forms.Button();
+            this.btnP50 = new System.Windows.Forms.Button();
+            this.btnQ = new System.Windows.Forms.Button();
+            this.levelMeter1 = new TXcalUi.LevelMeter();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -143,11 +152,11 @@
             // tbData
             // 
             this.tbData.BackColor = System.Drawing.SystemColors.Window;
-            this.tbData.Location = new System.Drawing.Point(17, 224);
+            this.tbData.Location = new System.Drawing.Point(17, 251);
             this.tbData.Multiline = true;
             this.tbData.Name = "tbData";
             this.tbData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbData.Size = new System.Drawing.Size(541, 223);
+            this.tbData.Size = new System.Drawing.Size(541, 196);
             this.tbData.TabIndex = 4;
             this.tbData.WordWrap = false;
             // 
@@ -796,25 +805,6 @@
             this.lblLevel.Size = new System.Drawing.Size(0, 13);
             this.lblLevel.TabIndex = 79;
             // 
-            // levelMeter1
-            // 
-            this.levelMeter1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.levelMeter1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.levelMeter1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.levelMeter1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.5F, System.Drawing.FontStyle.Bold);
-            this.levelMeter1.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.levelMeter1.Level = -60D;
-            this.levelMeter1.Location = new System.Drawing.Point(17, 151);
-            this.levelMeter1.Maximum = 8D;
-            this.levelMeter1.Minimum = -60D;
-            this.levelMeter1.Name = "levelMeter1";
-            this.levelMeter1.RedThresholdDb = -1D;
-            this.levelMeter1.SegmentCount = 34;
-            this.levelMeter1.Size = new System.Drawing.Size(247, 38);
-            this.levelMeter1.TabIndex = 78;
-            this.levelMeter1.Text = "OFF";
-            this.levelMeter1.YellowThresholdDb = -20D;
-            // 
             // lblFwd
             // 
             this.lblFwd.AutoSize = true;
@@ -851,11 +841,128 @@
             this.lblTemp.TabIndex = 83;
             this.lblTemp.Text = "Temp";
             // 
+            // btnU
+            // 
+            this.btnU.Location = new System.Drawing.Point(18, 225);
+            this.btnU.Name = "btnU";
+            this.btnU.Size = new System.Drawing.Size(32, 19);
+            this.btnU.TabIndex = 84;
+            this.btnU.Text = "D";
+            this.btnU.UseVisualStyleBackColor = true;
+            this.btnU.Click += new System.EventHandler(this.btnU_Click);
+            // 
+            // btnD
+            // 
+            this.btnD.Location = new System.Drawing.Point(55, 225);
+            this.btnD.Name = "btnD";
+            this.btnD.Size = new System.Drawing.Size(32, 19);
+            this.btnD.TabIndex = 85;
+            this.btnD.UseVisualStyleBackColor = true;
+            this.btnD.Click += new System.EventHandler(this.btnD_Click);
+            // 
+            // btnL50
+            // 
+            this.btnL50.Location = new System.Drawing.Point(93, 225);
+            this.btnL50.Name = "btnL50";
+            this.btnL50.Size = new System.Drawing.Size(39, 19);
+            this.btnL50.TabIndex = 86;
+            this.btnL50.Text = "L50";
+            this.btnL50.UseVisualStyleBackColor = true;
+            this.btnL50.Click += new System.EventHandler(this.btnL50_Click);
+            // 
+            // btnCW
+            // 
+            this.btnCW.Location = new System.Drawing.Point(283, 225);
+            this.btnCW.Name = "btnCW";
+            this.btnCW.Size = new System.Drawing.Size(39, 19);
+            this.btnCW.TabIndex = 87;
+            this.btnCW.Text = "CW";
+            this.btnCW.UseVisualStyleBackColor = true;
+            this.btnCW.Click += new System.EventHandler(this.btnCW_Click);
+            // 
+            // btnUSB
+            // 
+            this.btnUSB.Location = new System.Drawing.Point(328, 225);
+            this.btnUSB.Name = "btnUSB";
+            this.btnUSB.Size = new System.Drawing.Size(48, 19);
+            this.btnUSB.TabIndex = 88;
+            this.btnUSB.Text = "USB";
+            this.btnUSB.UseVisualStyleBackColor = true;
+            this.btnUSB.Click += new System.EventHandler(this.btnUSB_Click);
+            // 
+            // btn2T
+            // 
+            this.btn2T.Location = new System.Drawing.Point(382, 226);
+            this.btn2T.Name = "btn2T";
+            this.btn2T.Size = new System.Drawing.Size(39, 19);
+            this.btn2T.TabIndex = 89;
+            this.btn2T.Text = "2T";
+            this.btn2T.UseVisualStyleBackColor = true;
+            this.btn2T.Click += new System.EventHandler(this.btn2T_Click);
+            // 
+            // btnFT8
+            // 
+            this.btnFT8.Location = new System.Drawing.Point(427, 226);
+            this.btnFT8.Name = "btnFT8";
+            this.btnFT8.Size = new System.Drawing.Size(39, 19);
+            this.btnFT8.TabIndex = 90;
+            this.btnFT8.Text = "FT8";
+            this.btnFT8.UseVisualStyleBackColor = true;
+            this.btnFT8.Click += new System.EventHandler(this.btnFT8_Click);
+            // 
+            // btnP50
+            // 
+            this.btnP50.Location = new System.Drawing.Point(137, 225);
+            this.btnP50.Name = "btnP50";
+            this.btnP50.Size = new System.Drawing.Size(39, 19);
+            this.btnP50.TabIndex = 91;
+            this.btnP50.Text = "P50";
+            this.btnP50.UseVisualStyleBackColor = true;
+            this.btnP50.Click += new System.EventHandler(this.btnP50_Click);
+            // 
+            // btnQ
+            // 
+            this.btnQ.Location = new System.Drawing.Point(181, 225);
+            this.btnQ.Name = "btnQ";
+            this.btnQ.Size = new System.Drawing.Size(39, 19);
+            this.btnQ.TabIndex = 92;
+            this.btnQ.Text = "Q0";
+            this.btnQ.UseVisualStyleBackColor = true;
+            this.btnQ.Click += new System.EventHandler(this.btnQ_Click);
+            // 
+            // levelMeter1
+            // 
+            this.levelMeter1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.levelMeter1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.levelMeter1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.levelMeter1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.5F, System.Drawing.FontStyle.Bold);
+            this.levelMeter1.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.levelMeter1.Level = -60D;
+            this.levelMeter1.Location = new System.Drawing.Point(17, 151);
+            this.levelMeter1.Maximum = 8D;
+            this.levelMeter1.Minimum = -60D;
+            this.levelMeter1.Name = "levelMeter1";
+            this.levelMeter1.RedThresholdDb = -1D;
+            this.levelMeter1.SegmentCount = 34;
+            this.levelMeter1.Size = new System.Drawing.Size(247, 38);
+            this.levelMeter1.TabIndex = 78;
+            this.levelMeter1.Text = "OFF";
+            this.levelMeter1.YellowThresholdDb = -20D;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 655);
+            this.Controls.Add(this.btnQ);
+            this.Controls.Add(this.btnP50);
+            this.Controls.Add(this.btnFT8);
+            this.Controls.Add(this.btn2T);
+            this.Controls.Add(this.btnUSB);
+            this.Controls.Add(this.btnCW);
+            this.Controls.Add(this.btnL50);
+            this.Controls.Add(this.btnD);
+            this.Controls.Add(this.btnU);
             this.Controls.Add(this.lblTemp);
             this.Controls.Add(this.lblSwr);
             this.Controls.Add(this.lblRev);
@@ -1040,5 +1147,14 @@
         private System.Windows.Forms.Label lblRev;
         private System.Windows.Forms.Label lblSwr;
         private System.Windows.Forms.Label lblTemp;
+        private System.Windows.Forms.Button btnU;
+        private System.Windows.Forms.Button btnD;
+        private System.Windows.Forms.Button btnL50;
+        private System.Windows.Forms.Button btnCW;
+        private System.Windows.Forms.Button btnUSB;
+        private System.Windows.Forms.Button btn2T;
+        private System.Windows.Forms.Button btnFT8;
+        private System.Windows.Forms.Button btnP50;
+        private System.Windows.Forms.Button btnQ;
     }
 }

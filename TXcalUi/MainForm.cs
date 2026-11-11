@@ -1137,8 +1137,54 @@ namespace TXcalUi
             tbCmd.Focus(); // put the cursor back in the command box for convenience
         }
 
+        private void btnU_Click(object sender, EventArgs e)
+        {
+            string str = btnU.Text == "U" ? "{D}" : "{U}";
+            btnU.Text = btnU.Text == "U" ? "D" : "U";
+            _serial.SendFireAndForget(str);
+        }
 
+        private void btnD_Click(object sender, EventArgs e)
+        {
+            _serial.SendFireAndForget("{D}");
+        }
 
+        private void btnL50_Click(object sender, EventArgs e)
+        {
+            _serial.SendFireAndForget("{L50}");
+        }
+
+        private void btnCW_Click(object sender, EventArgs e)
+        {
+            _serial.SendFireAndForget("{M256}");
+        }
+
+        private void btnUSB_Click(object sender, EventArgs e)
+        {
+            _serial.SendFireAndForget("{M32}");
+        }
+
+        private void btn2T_Click(object sender, EventArgs e)
+        {
+            _serial.SendFireAndForget("{M128}");
+        }
+
+        private void btnFT8_Click(object sender, EventArgs e)
+        {
+            _serial.SendFireAndForget("{M8}");
+        }
+
+        private void btnP50_Click(object sender, EventArgs e)
+        {
+            _serial.SendFireAndForget("{P50}");
+        }
+
+        private void btnQ_Click(object sender, EventArgs e)
+        {
+            string str = btnQ.Text == "Q0" ? "{Q1}" : "{Q0}";
+            btnQ.Text = btnQ.Text == "Q0" ? "Q1" : "Q0";
+            _serial.SendFireAndForget(str);
+        }
 
 
         // Nothing native to release here on close -- SDRunoPlugin_TXcalUi's destructor

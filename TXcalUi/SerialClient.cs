@@ -156,6 +156,8 @@ namespace SerialDemo
             Open(portName, baudRate);
             IsStreamingStopped = true; // assumed until proven otherwise below
 
+            return;
+
             // Let the reboot finish and the boot log / early telemetry drain out. If it's
             // genuinely continuous with no gaps this just waits out maxWaitMs and moves on.
             await WaitForQuietAsync(quietPeriodMs, maxWaitMs);
