@@ -101,7 +101,7 @@
             this.lblSwr = new System.Windows.Forms.Label();
             this.lblTemp = new System.Windows.Forms.Label();
             this.btnU = new System.Windows.Forms.Button();
-            this.btnD = new System.Windows.Forms.Button();
+            this.btnL0 = new System.Windows.Forms.Button();
             this.btnL50 = new System.Windows.Forms.Button();
             this.btnCW = new System.Windows.Forms.Button();
             this.btnUSB = new System.Windows.Forms.Button();
@@ -113,6 +113,7 @@
             this.btnFT4 = new System.Windows.Forms.Button();
             this.btnFT2 = new System.Windows.Forms.Button();
             this.btnJTTY = new System.Windows.Forms.Button();
+            this.btnRTTY = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -137,7 +138,7 @@
             // 
             // txtFrequency
             // 
-            this.txtFrequency.Location = new System.Drawing.Point(19, 119);
+            this.txtFrequency.Location = new System.Drawing.Point(20, 120);
             this.txtFrequency.Name = "txtFrequency";
             this.txtFrequency.Size = new System.Drawing.Size(84, 20);
             this.txtFrequency.TabIndex = 2;
@@ -155,11 +156,11 @@
             // tbData
             // 
             this.tbData.BackColor = System.Drawing.SystemColors.Window;
-            this.tbData.Location = new System.Drawing.Point(17, 251);
+            this.tbData.Location = new System.Drawing.Point(17, 274);
             this.tbData.Multiline = true;
             this.tbData.Name = "tbData";
             this.tbData.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbData.Size = new System.Drawing.Size(541, 196);
+            this.tbData.Size = new System.Drawing.Size(541, 213);
             this.tbData.TabIndex = 4;
             this.tbData.WordWrap = false;
             // 
@@ -299,11 +300,11 @@
             // 
             // tbResults
             // 
-            this.tbResults.Location = new System.Drawing.Point(19, 449);
+            this.tbResults.Location = new System.Drawing.Point(19, 493);
             this.tbResults.Multiline = true;
             this.tbResults.Name = "tbResults";
             this.tbResults.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.tbResults.Size = new System.Drawing.Size(540, 201);
+            this.tbResults.Size = new System.Drawing.Size(540, 157);
             this.tbResults.TabIndex = 19;
             this.tbResults.WordWrap = false;
             // 
@@ -854,14 +855,15 @@
             this.btnU.UseVisualStyleBackColor = true;
             this.btnU.Click += new System.EventHandler(this.btnU_Click);
             // 
-            // btnD
+            // btnL0
             // 
-            this.btnD.Location = new System.Drawing.Point(55, 225);
-            this.btnD.Name = "btnD";
-            this.btnD.Size = new System.Drawing.Size(32, 19);
-            this.btnD.TabIndex = 85;
-            this.btnD.UseVisualStyleBackColor = true;
-            this.btnD.Click += new System.EventHandler(this.btnD_Click);
+            this.btnL0.Location = new System.Drawing.Point(56, 226);
+            this.btnL0.Name = "btnL0";
+            this.btnL0.Size = new System.Drawing.Size(32, 19);
+            this.btnL0.TabIndex = 85;
+            this.btnL0.Text = "L0";
+            this.btnL0.UseVisualStyleBackColor = true;
+            this.btnL0.Click += new System.EventHandler(this.btnL0_Click);
             // 
             // btnL50
             // 
@@ -982,11 +984,22 @@
             this.btnJTTY.UseVisualStyleBackColor = true;
             this.btnJTTY.Click += new System.EventHandler(this.btnJTTY_Click);
             // 
+            // btnRTTY
+            // 
+            this.btnRTTY.Location = new System.Drawing.Point(242, 249);
+            this.btnRTTY.Name = "btnRTTY";
+            this.btnRTTY.Size = new System.Drawing.Size(39, 19);
+            this.btnRTTY.TabIndex = 96;
+            this.btnRTTY.Text = "RTTY";
+            this.btnRTTY.UseVisualStyleBackColor = true;
+            this.btnRTTY.Click += new System.EventHandler(this.btnRTTY_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 655);
+            this.Controls.Add(this.btnRTTY);
             this.Controls.Add(this.btnJTTY);
             this.Controls.Add(this.btnFT2);
             this.Controls.Add(this.btnFT4);
@@ -997,7 +1010,7 @@
             this.Controls.Add(this.btnUSB);
             this.Controls.Add(this.btnCW);
             this.Controls.Add(this.btnL50);
-            this.Controls.Add(this.btnD);
+            this.Controls.Add(this.btnL0);
             this.Controls.Add(this.btnU);
             this.Controls.Add(this.lblTemp);
             this.Controls.Add(this.lblSwr);
@@ -1184,7 +1197,7 @@
         private System.Windows.Forms.Label lblSwr;
         private System.Windows.Forms.Label lblTemp;
         private System.Windows.Forms.Button btnU;
-        private System.Windows.Forms.Button btnD;
+        private System.Windows.Forms.Button btnL0;
         private System.Windows.Forms.Button btnL50;
         private System.Windows.Forms.Button btnCW;
         private System.Windows.Forms.Button btnUSB;
@@ -1195,5 +1208,6 @@
         private System.Windows.Forms.Button btnFT4;
         private System.Windows.Forms.Button btnFT2;
         private System.Windows.Forms.Button btnJTTY;
+        private System.Windows.Forms.Button btnRTTY;
     }
 }

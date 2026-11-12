@@ -1241,6 +1241,23 @@ namespace TXcalUi
             _serial.SendFireAndForget(str3);
         }
 
+        private void btnL0_Click(object sender, EventArgs e)
+        {
+            _serial.SendFireAndForget("{L0}");
+        }
+
+        private void btnRTTY_Click(object sender, EventArgs e)
+        {
+            string str1 = strF() + "{U}{M1}";
+            string str2 = "{ZANY TEXT CAN BE SENT}";
+            string str3 = "{X1}";
+            btnU.Text = "U";
+
+            _serial.SendFireAndForget(str1);
+            _serial.SendFireAndForget(str2);
+            _serial.SendFireAndForget(str3);
+        }
+
 
         // Nothing native to release here on close -- SDRunoPlugin_TXcalUi's destructor
         // (native side) owns the lifetime of TXcalUiHost/TXcalControllerBridge and
