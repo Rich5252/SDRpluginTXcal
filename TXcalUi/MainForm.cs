@@ -1156,17 +1156,20 @@ namespace TXcalUi
 
         private void btnCW_Click(object sender, EventArgs e)
         {
-            _serial.SendFireAndForget("{M256}");
+            string str1 = strF() + "{M256}";
+            _serial.SendFireAndForget(str1);
         }
 
         private void btnUSB_Click(object sender, EventArgs e)
         {
-            _serial.SendFireAndForget("{M32}");
+            string str1 = strF() + "{M32}";
+            _serial.SendFireAndForget(str1);
         }
 
         private void btn2T_Click(object sender, EventArgs e)
         {
-            _serial.SendFireAndForget("{M128}");
+            string str1 = strF() + "{M128}";
+            _serial.SendFireAndForget(str1);
         }
 
         private void btnP50_Click(object sender, EventArgs e)
