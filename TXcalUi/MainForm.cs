@@ -1169,11 +1169,6 @@ namespace TXcalUi
             _serial.SendFireAndForget("{M128}");
         }
 
-        private void btnFT8_Click(object sender, EventArgs e)
-        {
-            _serial.SendFireAndForget("{M8}");
-        }
-
         private void btnP50_Click(object sender, EventArgs e)
         {
             _serial.SendFireAndForget("{P50}");
@@ -1184,6 +1179,62 @@ namespace TXcalUi
             string str = btnQ.Text == "Q0" ? "{Q1}" : "{Q0}";
             btnQ.Text = btnQ.Text == "Q0" ? "Q1" : "Q0";
             _serial.SendFireAndForget(str);
+        }
+
+        private void btnFT8_Click(object sender, EventArgs e)
+        {
+            string str1 = strF() + "{U}{M8}{W14500}{Y1000}";
+            string str2 = "{Z3140652002457262353553516142250015633140652505007562410457700470324420543140652}{W14500}{X1}";
+            string str3 = "{W14500}{X1}";
+
+            _serial.SendFireAndForget(str1);
+            _serial.SendFireAndForget(str2);
+            _serial.SendFireAndForget(str3);
+        }
+
+        private string strF()
+        {
+            if (txtFrequency.Text == string.Empty) txtFrequency.Text = "14.080"; // default to 14.080 MHz if no frequency is entered
+            double.TryParse(txtFrequency.Text, out double mhz);
+            long hz = (long)Math.Round(mhz * 1e6);
+            string strF = "{F" + hz.ToString(CultureInfo.InvariantCulture) + "}";
+
+            return strF;
+        }
+
+
+
+        private void btnFT4_Click(object sender, EventArgs e)
+        {
+            string str1 = strF() + "{U}{M4}{W7500}{Y1000}";
+            string str2 = "{Z001321032321211102123313131231021310232021123033012201020201023112023101230013010320022131022122233032010}";
+            string str3 = "{X1}";
+
+            _serial.SendFireAndForget(str1);
+            _serial.SendFireAndForget(str2);
+            _serial.SendFireAndForget(str3);
+        }
+
+        private void btnFT2_Click(object sender, EventArgs e)
+        {
+            string str1 = strF() + "{U}{M2}{W3790}{Y1000}";
+            string str2 = "{Z001321032321211102123313131231021310232021123033012201020201023112023101230013010320022131022122233032010}";
+            string str3 = "{X1}";
+
+            _serial.SendFireAndForget(str1);
+            _serial.SendFireAndForget(str2);
+            _serial.SendFireAndForget(str3);
+        }
+
+        private void btnJTTY_Click(object sender, EventArgs e)
+        {
+            string str1 = strF() + "{U}{M16}{Y500}";
+            string str2 = "{J88A80E5D56F193332097C9A}{X1}";
+            string str3 = "{J70BFDDF79F888C9A3D62A7D36450F0B951E9A6C6774D394A07A10EB14A4B4A2869A3A}{X1}";
+
+            _serial.SendFireAndForget(str1);
+            _serial.SendFireAndForget(str2);
+            _serial.SendFireAndForget(str3);
         }
 
 

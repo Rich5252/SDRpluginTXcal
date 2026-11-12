@@ -110,6 +110,9 @@
             this.btnP50 = new System.Windows.Forms.Button();
             this.btnQ = new System.Windows.Forms.Button();
             this.levelMeter1 = new TXcalUi.LevelMeter();
+            this.btnFT4 = new System.Windows.Forms.Button();
+            this.btnFT2 = new System.Windows.Forms.Button();
+            this.btnJTTY = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -872,7 +875,7 @@
             // 
             // btnCW
             // 
-            this.btnCW.Location = new System.Drawing.Point(283, 225);
+            this.btnCW.Location = new System.Drawing.Point(242, 224);
             this.btnCW.Name = "btnCW";
             this.btnCW.Size = new System.Drawing.Size(39, 19);
             this.btnCW.TabIndex = 87;
@@ -882,7 +885,7 @@
             // 
             // btnUSB
             // 
-            this.btnUSB.Location = new System.Drawing.Point(328, 225);
+            this.btnUSB.Location = new System.Drawing.Point(287, 224);
             this.btnUSB.Name = "btnUSB";
             this.btnUSB.Size = new System.Drawing.Size(48, 19);
             this.btnUSB.TabIndex = 88;
@@ -892,7 +895,7 @@
             // 
             // btn2T
             // 
-            this.btn2T.Location = new System.Drawing.Point(382, 226);
+            this.btn2T.Location = new System.Drawing.Point(341, 225);
             this.btn2T.Name = "btn2T";
             this.btn2T.Size = new System.Drawing.Size(39, 19);
             this.btn2T.TabIndex = 89;
@@ -902,7 +905,7 @@
             // 
             // btnFT8
             // 
-            this.btnFT8.Location = new System.Drawing.Point(427, 226);
+            this.btnFT8.Location = new System.Drawing.Point(386, 225);
             this.btnFT8.Name = "btnFT8";
             this.btnFT8.Size = new System.Drawing.Size(39, 19);
             this.btnFT8.TabIndex = 90;
@@ -949,11 +952,44 @@
             this.levelMeter1.Text = "OFF";
             this.levelMeter1.YellowThresholdDb = -20D;
             // 
+            // btnFT4
+            // 
+            this.btnFT4.Location = new System.Drawing.Point(428, 225);
+            this.btnFT4.Name = "btnFT4";
+            this.btnFT4.Size = new System.Drawing.Size(39, 19);
+            this.btnFT4.TabIndex = 93;
+            this.btnFT4.Text = "FT4";
+            this.btnFT4.UseVisualStyleBackColor = true;
+            this.btnFT4.Click += new System.EventHandler(this.btnFT4_Click);
+            // 
+            // btnFT2
+            // 
+            this.btnFT2.Location = new System.Drawing.Point(469, 224);
+            this.btnFT2.Name = "btnFT2";
+            this.btnFT2.Size = new System.Drawing.Size(39, 19);
+            this.btnFT2.TabIndex = 94;
+            this.btnFT2.Text = "FT2";
+            this.btnFT2.UseVisualStyleBackColor = true;
+            this.btnFT2.Click += new System.EventHandler(this.btnFT2_Click);
+            // 
+            // btnJTTY
+            // 
+            this.btnJTTY.Location = new System.Drawing.Point(514, 224);
+            this.btnJTTY.Name = "btnJTTY";
+            this.btnJTTY.Size = new System.Drawing.Size(39, 19);
+            this.btnJTTY.TabIndex = 95;
+            this.btnJTTY.Text = "JTTY";
+            this.btnJTTY.UseVisualStyleBackColor = true;
+            this.btnJTTY.Click += new System.EventHandler(this.btnJTTY_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(671, 655);
+            this.Controls.Add(this.btnJTTY);
+            this.Controls.Add(this.btnFT2);
+            this.Controls.Add(this.btnFT4);
             this.Controls.Add(this.btnQ);
             this.Controls.Add(this.btnP50);
             this.Controls.Add(this.btnFT8);
@@ -1156,5 +1192,8 @@
         private System.Windows.Forms.Button btnFT8;
         private System.Windows.Forms.Button btnP50;
         private System.Windows.Forms.Button btnQ;
+        private System.Windows.Forms.Button btnFT4;
+        private System.Windows.Forms.Button btnFT2;
+        private System.Windows.Forms.Button btnJTTY;
     }
 }
